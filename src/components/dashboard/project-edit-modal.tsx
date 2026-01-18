@@ -1,8 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Trash2, Users } from 'lucide-react'
 import { getUsers } from '@/lib/data'
+
+interface User {
+    id: string
+    name: string
+    email: string
+    avatar?: string
+}
 
 interface Project {
     id: string
@@ -30,7 +37,23 @@ export default function ProjectEditModal({ project, isOpen, onClose, onSave }: P
     const [hasChanges, setHasChanges] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const allUsers = getUsers()
+    const [allUsers, setAllUsers] = useState<User[]>([])
+    const [loadingUsers, setLoadingUsers] = useState(true)
+
+    useEffect(() => {
+        const loadUsers = async () => {
+            try {
+                const users = await getUsers()
+                setAllUsers(users)
+            } catch (error) {
+                console.error('Failed to load users:', error)
+            } finally {
+                setLoadingUsers(false)
+            }
+        }
+
+        loadUsers()
+    }, [])
 
     const handleChange = (field: string, value: any) => {
         setEditedProject(prev => ({
@@ -192,20 +215,26 @@ export default function ProjectEditModal({ project, isOpen, onClose, onSave }: P
                             Project Team Members
                         </label>
                         <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3 bg-gray-50">
-                            {allUsers.map(user => (
-                                <label key={user.id} className="flex items-center gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors">
-                                    <input
-                                        type="checkbox"
-                                        checked={editedProject.teamMembers?.includes(user.id) || false}
-                                        onChange={() => handleTeamMemberToggle(user.id)}
-                                        className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                                        <p className="text-xs text-gray-700">{user.email}</p>
-                                    </div>
-                                </label>
-                            ))}
+                            {loadingUsers ? (
+                                <p className="text-sm text-gray-600">Loading team members...</p>
+                            ) : allUsers.length > 0 ? (
+                                allUsers.map(user => (
+                                    <label key={user.id} className="flex items-center gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={editedProject.teamMembers?.includes(user.id) || false}
+                                            onChange={() => handleTeamMemberToggle(user.id)}
+                                            className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                                        />
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                                            <p className="text-xs text-gray-700">{user.email}</p>
+                                        </div>
+                                    </label>
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-600">No team members available</p>
+                            )}
                         </div>
                         <p className="text-xs text-gray-700 mt-2">Selected: {editedProject.teamMembers?.length || 0} / {allUsers.length}</p>
                     </div>
