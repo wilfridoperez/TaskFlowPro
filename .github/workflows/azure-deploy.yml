@@ -42,6 +42,6 @@ jobs:
       - name: Run migrations
         run: |
           npm ci
-          npx prisma migrate deploy --skip-generate
+          npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
