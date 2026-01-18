@@ -125,7 +125,7 @@ export const createTask = async (taskData: {
             title: taskData.title,
             description: taskData.description,
             status: "TODO",
-            priority: taskData.priority,
+            priority: (taskData.priority as any) || "MEDIUM",
             startDate,
             dueDate,
             projectId: taskData.projectId,
