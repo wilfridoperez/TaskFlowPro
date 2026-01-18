@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Next.js Debug",
+            "type": "node",
+            "request": "attach",
+            "port": 9230,
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "pathMapping": {
+                "/": "${workspaceRoot}/",
+                "/*": "${workspaceRoot}/*"
+            }
+        },
+        {
+            "name": "Next.js Debug (Launch)",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/.bin/next",
+            "args": [
+                "dev"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        }
+    ]
+}

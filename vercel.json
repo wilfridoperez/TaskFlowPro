@@ -1,0 +1,27 @@
+{
+    "functions": {
+        "src/app/api/stripe/webhook/route.ts": {
+            "maxDuration": 30
+        },
+        "src/app/api/stripe/checkout/route.ts": {
+            "maxDuration": 20
+        }
+    },
+    "headers": [
+        {
+            "source": "/api/stripe/webhook",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache, no-store, max-age=0, must-revalidate"
+                }
+            ]
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/stripe/:path*",
+            "destination": "/api/stripe/:path*"
+        }
+    ]
+}

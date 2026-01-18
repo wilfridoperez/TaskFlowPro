@@ -1,0 +1,25 @@
+import { NextRequest, NextResponse } from "next/server"
+import { auth } from "@/lib/auth"
+
+export default async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl
+
+    // Check if user is accessing dashboard routes
+    if (pathname.startsWith('/dashboard')) {
+        const session = await auth()
+
+        // If not authenticated, redirect to signin
+        if (!session?.user) {
+            return NextResponse.redirect(new URL('/auth/signin', request.url))
+        }
+    }
+
+    return NextResponse.next()
+}
+
+export const config = {
+    matcher: [
+        // Match all dashboard routes
+        '/dashboard/:path*',
+    ]
+}

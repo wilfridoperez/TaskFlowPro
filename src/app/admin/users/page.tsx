@@ -1,0 +1,179 @@
+'use client'
+
+import { useState } from 'react'
+import { Trash2, Edit2, Plus } from 'lucide-react'
+
+interface User {
+    id: string
+    name: string
+    email: string
+    role: 'ADMIN' | 'USER'
+    status: 'ACTIVE' | 'INACTIVE'
+    createdAt: string
+}
+
+export default function UsersManagement() {
+    const [users, setUsers] = useState<User[]>([
+        { id: '1', name: 'Admin User', email: 'admin@taskflow.com', role: 'ADMIN', status: 'ACTIVE', createdAt: '2025-01-01' },
+        { id: '2', name: 'John Doe', email: 'john@example.com', role: 'USER', status: 'ACTIVE', createdAt: '2025-01-05' },
+        { id: '3', name: 'Jane Smith', email: 'jane@example.com', role: 'USER', status: 'ACTIVE', createdAt: '2025-01-08' },
+    ])
+
+    const [showForm, setShowForm] = useState(false)
+    const [formData, setFormData] = useState({ name: '', email: '', role: 'USER' as const })
+    const [editingId, setEditingId] = useState<string | null>(null)
+
+    const handleAddUser = () => {
+        if (formData.name && formData.email) {
+            if (editingId) {
+                setUsers(users.map(u => u.id === editingId ? { ...u, ...formData } : u))
+                setEditingId(null)
+            } else {
+                const newUser: User = {
+                    id: Math.random().toString(),
+                    ...formData,
+                    status: 'ACTIVE',
+                    createdAt: new Date().toISOString().split('T')[0]
+                }
+                setUsers([...users, newUser])
+            }
+            setFormData({ name: '', email: '', role: 'USER' })
+            setShowForm(false)
+        }
+    }
+
+    const handleEdit = (user: User) => {
+        setFormData({ name: user.name, email: user.email, role: user.role })
+        setEditingId(user.id)
+        setShowForm(true)
+    }
+
+    const handleDelete = (id: string) => {
+        setUsers(users.filter(u => u.id !== id))
+    }
+
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Users Management</h2>
+                <button
+                    onClick={() => {
+                        setShowForm(!showForm)
+                        setEditingId(null)
+                        setFormData({ name: '', email: '', role: 'USER' })
+                    }}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                    <Plus className="w-4 h-4" />
+                    Add User
+                </button>
+            </div>
+
+            {showForm && (
+                <div className="bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 className="text-lg font-semibold mb-4">{editingId ? 'Edit User' : 'New User'}</h3>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter user name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter email address"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                            <select
+                                value={formData.role}
+                                onChange={(e) => setFormData({ ...formData, role: e.target.value as 'ADMIN' | 'USER' })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="USER">User</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleAddUser}
+                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                {editingId ? 'Update User' : 'Create User'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowForm(false)
+                                    setEditingId(null)
+                                    setFormData({ name: '', email: '', role: 'USER' })
+                                }}
+                                className="flex-1 bg-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-400"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Role</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Created</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {users.map((user) => (
+                            <tr key={user.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.name}</td>
+                                <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
+                                <td className="px-6 py-4 text-sm">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                                        }`}>
+                                        {user.role}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 text-sm">
+                                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        {user.status}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-600">{user.createdAt}</td>
+                                <td className="px-6 py-4 text-sm flex gap-2">
+                                    <button
+                                        onClick={() => handleEdit(user)}
+                                        className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
+                                    >
+                                        <Edit2 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(user.id)}
+                                        className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
