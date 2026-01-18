@@ -20,7 +20,7 @@ export default function UsersManagement() {
     ])
 
     const [showForm, setShowForm] = useState(false)
-    const [formData, setFormData] = useState({ name: '', email: '', role: 'USER' as const })
+    const [formData, setFormData] = useState({ name: '', email: '', role: 'USER' as 'USER' | 'ADMIN' })
     const [editingId, setEditingId] = useState<string | null>(null)
 
     const handleAddUser = () => {
