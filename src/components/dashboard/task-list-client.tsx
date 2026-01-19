@@ -78,11 +78,24 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
         }
     }
 
-    const handleStatusChange = (taskId: string, newStatus: string) => {
+    const handleStatusChange = async (taskId: string, newStatus: string) => {
+        // Update local state for instant UI feedback
         setUpdatedTasks(prev => ({
             ...prev,
             [taskId]: { ...prev[taskId], status: newStatus }
         }))
+
+        // Persist to database
+        try {
+            await updateTaskById(taskId, { status: newStatus })
+        } catch (error) {
+            console.error('Error updating task status:', error)
+            // Optionally revert changes on error
+            setUpdatedTasks(prev => ({
+                ...prev,
+                [taskId]: { ...prev[taskId], status: undefined }
+            }))
+        }
     }
 
     const getDependencyStatus = (task: Task | undefined) => {
