@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { createProject } from '@/lib/actions'
 
 export default function NewProjectPage() {
     const router = useRouter()
+    const { data: session } = useSession()
     const mockUsers: any[] = [] // TODO: Fetch users from API endpoint instead
     const [formData, setFormData] = useState({
         name: '',
@@ -19,6 +21,7 @@ export default function NewProjectPage() {
     })
     const [selectedMembers, setSelectedMembers] = useState<string[]>([])
     const [submitted, setSubmitted] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target
@@ -38,15 +41,22 @@ export default function NewProjectPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!session?.user?.id) {
+            setError('You must be logged in to create a project')
+            return
+        }
+
         if (formData.name && formData.description) {
             try {
+                setError(null)
                 createProject({
                     name: formData.name,
                     description: formData.description,
                     startDate: formData.startDate,
                     endDate: formData.endDate,
                     budget: formData.budget,
-                    userId: "mock-user",
+                    userId: session.user.id,
                     teamMembers: selectedMembers
                 })
                 setSubmitted(true)
@@ -55,6 +65,7 @@ export default function NewProjectPage() {
                 }, 1500)
             } catch (error) {
                 console.error('Error creating project:', error)
+                setError('Failed to create project. Please try again.')
             }
         }
     }
@@ -78,6 +89,12 @@ export default function NewProjectPage() {
                         {submitted && (
                             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                                 <p className="text-green-800 font-medium">✅ Project created successfully! Redirecting...</p>
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-red-800 font-medium">❌ {error}</p>
                             </div>
                         )}
 
