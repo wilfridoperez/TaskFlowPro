@@ -1,3 +1,5 @@
+'use server'
+
 /**
  * Data Layer Module - Read-Only Operations
  * 

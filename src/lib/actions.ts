@@ -81,11 +81,14 @@ export const createProject = async (projectData: {
 }
 
 export const updateProject = async (projectId: string, updates: any) => {
+    // Extract teamMembers and remove from updates spread
+    const { teamMembers, ...restUpdates } = updates
+
     const updated = await prisma.project.update({
         where: { id: projectId },
         data: {
-            ...updates,
-            teamMemberIds: updates.teamMembers ? updates.teamMembers.join(',') : undefined,
+            ...restUpdates,
+            teamMemberIds: teamMembers ? teamMembers.join(',') : undefined,
         }
     })
 
@@ -144,12 +147,25 @@ export const createTask = async (taskData: {
 }
 
 export const updateTaskById = async (taskId: string, updates: any) => {
+    // Only allow specific fields to be updated
+    const allowedFields = ['title', 'description', 'status', 'priority', 'startDate', 'dueDate', 'estimatedHours', 'actualHours', 'tags', 'assigneeId', 'dependsOn']
+
+    const filteredUpdates: any = {}
+
+    for (const key of allowedFields) {
+        if (key in updates) {
+            // Handle dependsOn specially - convert array to comma-separated string
+            if (key === 'dependsOn') {
+                filteredUpdates.dependsOn = Array.isArray(updates.dependsOn) ? updates.dependsOn.join(',') : updates.dependsOn
+            } else {
+                filteredUpdates[key] = updates[key]
+            }
+        }
+    }
+
     const updated = await prisma.task.update({
         where: { id: taskId },
-        data: {
-            ...updates,
-            dependsOn: updates.dependsOn ? updates.dependsOn.join(',') : undefined,
-        }
+        data: filteredUpdates
     })
 
     revalidatePath('/dashboard/projects', 'layout')

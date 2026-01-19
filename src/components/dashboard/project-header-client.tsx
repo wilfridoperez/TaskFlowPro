@@ -21,11 +21,15 @@ export default function ProjectHeaderClient({ project, completedTasks, totalTask
     const handleSaveProject = async (updates: any) => {
         setIsSaving(true)
         try {
-            const updated = updateProject(project.id, updates)
+            const updated = await updateProject(project.id, updates)
             if (updated) {
                 setEditingProject(updated)
                 setIsModalOpen(false)
+                // Reload the page to refresh data
+                window.location.reload()
             }
+        } catch (error) {
+            console.error('Error updating project:', error)
         } finally {
             setIsSaving(false)
         }
@@ -44,7 +48,7 @@ export default function ProjectHeaderClient({ project, completedTasks, totalTask
                             editingProject.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800' :
                                 'bg-yellow-100 text-yellow-800'
                             }`}>
-                            {editingProject.status.charAt(0) + editingProject.status.slice(1).toLowerCase()}
+                            {editingProject.status ? editingProject.status.charAt(0) + editingProject.status.slice(1).toLowerCase() : 'UNKNOWN'}
                         </span>
                         <button
                             onClick={() => setIsModalOpen(true)}

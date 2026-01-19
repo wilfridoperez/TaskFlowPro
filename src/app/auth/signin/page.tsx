@@ -1,6 +1,7 @@
 "use client"
 
-import { useFormState, useFormStatus } from "react-dom"
+import { useActionState } from "react"
+import { useFormStatus } from "react-dom"
 import { authenticate } from "@/lib/actions"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
@@ -20,7 +21,7 @@ function SubmitButton() {
 }
 
 export default function SignInPage() {
-    const [errorMessage, dispatch] = useFormState(authenticate, undefined)
+    const [errorMessage, dispatch] = useActionState(authenticate, undefined)
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

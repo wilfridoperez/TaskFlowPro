@@ -50,9 +50,13 @@ export default function TaskDetailModal({
         setHasChanges(true)
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
         onSave(editedTask)
         setHasChanges(false)
+        // Small delay to allow parent to process the save
+        setTimeout(() => {
+            onClose()
+        }, 300)
     }
 
     const handleClose = () => {

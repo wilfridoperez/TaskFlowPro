@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { ChevronUp, ChevronDown, AlertCircle, Link2, Edit2, CheckCircle, Filter, X } from 'lucide-react'
 import TaskDetailModal from './task-detail-modal'
+import { updateTaskById } from '@/lib/actions'
 
 interface Task {
     id: string
@@ -58,13 +59,22 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
         return updates ? { ...baseTask, ...updates } as Task : baseTask
     }
 
-    const handleTaskUpdate = (updates: Partial<Task>) => {
+    const handleTaskUpdate = async (updates: Partial<Task>) => {
         if (selectedTask) {
+            // Update local state for instant UI feedback
             setUpdatedTasks(prev => ({
                 ...prev,
                 [selectedTask.id]: { ...prev[selectedTask.id], ...updates }
             }))
             setSelectedTask(prev => prev ? { ...prev, ...updates } : null)
+
+            // Persist to database
+            try {
+                await updateTaskById(selectedTask.id, updates)
+            } catch (error) {
+                console.error('Error updating task:', error)
+                // Optionally revert changes on error
+            }
         }
     }
 
