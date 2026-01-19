@@ -317,3 +317,40 @@ export const resetPassword = async (email: string, token: string, newPassword: s
         return { success: false, error: 'Failed to reset password' }
     }
 }
+
+export const adminResetPassword = async (userId: string, newPassword: string) => {
+    try {
+        // Get user
+        const user = await prisma.user.findUnique({ where: { id: userId } })
+        if (!user) {
+            return { success: false, error: 'User not found' }
+        }
+
+        // Hash and save new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        await prisma.user.update({
+            where: { id: userId },
+            data: { password: hashedPassword }
+        })
+
+        // Send notification email
+        if (user.email) {
+            const emailContent = generatePasswordChangedEmail(user.name || 'User')
+            await sendEmail({
+                to: user.email,
+                subject: 'Your Password Has Been Reset by Administrator',
+                html: emailContent.html.replace(
+                    'Your password has been successfully changed.',
+                    'Your password has been reset by an administrator. Please contact support if you did not request this.'
+                ),
+                text: emailContent.text,
+            })
+        }
+
+        revalidatePath('/admin/users', 'layout')
+        return { success: true, message: 'Password reset successfully' }
+    } catch (error) {
+        console.error('Error resetting user password:', error)
+        return { success: false, error: 'Failed to reset password' }
+    }
+}

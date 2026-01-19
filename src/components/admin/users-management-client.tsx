@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, Edit2, Plus } from 'lucide-react'
+import { Trash2, Edit2, Plus, Key } from 'lucide-react'
+import ResetPasswordModal from './reset-password-modal'
 
 interface User {
     id: string
@@ -22,6 +23,8 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
     const [showForm, setShowForm] = useState(false)
     const [formData, setFormData] = useState({ name: '', email: '', role: 'USER' as 'USER' | 'ADMIN' })
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [selectedUserForPasswordReset, setSelectedUserForPasswordReset] = useState<User | null>(null)
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
 
     const handleAddUser = () => {
         if (formData.name && formData.email) {
@@ -52,6 +55,11 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
 
     const handleDelete = (id: string) => {
         setUsers(users.filter(u => u.id !== id))
+    }
+
+    const handleResetPassword = (user: User) => {
+        setSelectedUserForPasswordReset(user)
+        setIsPasswordModalOpen(true)
     }
 
     return (
@@ -164,6 +172,13 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                                     <td className="px-6 py-4 text-sm text-gray-600">{user.createdAt}</td>
                                     <td className="px-6 py-4 text-sm flex gap-2">
                                         <button
+                                            onClick={() => handleResetPassword(user)}
+                                            className="text-purple-600 hover:text-purple-800 p-1 rounded hover:bg-purple-50"
+                                            title="Reset password"
+                                        >
+                                            <Key className="w-4 h-4" />
+                                        </button>
+                                        <button
                                             onClick={() => handleEdit(user)}
                                             className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
                                             title="Edit user"
@@ -184,6 +199,19 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                     </table>
                 )}
             </div>
+
+            {selectedUserForPasswordReset && (
+                <ResetPasswordModal
+                    userId={selectedUserForPasswordReset.id}
+                    userName={selectedUserForPasswordReset.name}
+                    userEmail={selectedUserForPasswordReset.email}
+                    isOpen={isPasswordModalOpen}
+                    onClose={() => {
+                        setIsPasswordModalOpen(false)
+                        setSelectedUserForPasswordReset(null)
+                    }}
+                />
+            )}
         </div>
     )
 }
