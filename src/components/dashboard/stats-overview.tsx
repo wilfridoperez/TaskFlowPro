@@ -10,7 +10,7 @@ export async function StatsOverview() {
     })
 
     const activeTasks = allTasks.filter(t => t.status === 'IN_PROGRESS').length
-    const completedTasks = allTasks.filter(t => t.status === 'COMPLETED').length
+    const completedTasks = allTasks.filter(t => t.status === 'DONE').length
     const totalTeamMembers = await prisma.user.count()
 
     // Calculate previous period values for comparison (mock data for now)
