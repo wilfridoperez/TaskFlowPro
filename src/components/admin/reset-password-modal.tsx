@@ -6,7 +6,7 @@ import { adminResetPassword } from '@/lib/actions'
 
 interface ResetPasswordModalProps {
     userId: string
-    userName: string
+    userName: string | null
     userEmail: string
     isOpen: boolean
     onClose: () => void
@@ -100,7 +100,7 @@ export default function ResetPasswordModal({
                         <form onSubmit={handleReset} className="space-y-4">
                             {/* User Info */}
                             <div className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-sm font-medium text-gray-900">{userName}</p>
+                                <p className="text-sm font-medium text-gray-900">{userName || 'User'}</p>
                                 <p className="text-xs text-gray-600">{userEmail}</p>
                             </div>
 

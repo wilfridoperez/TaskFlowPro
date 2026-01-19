@@ -7,7 +7,7 @@ import ResetPasswordModal from './reset-password-modal'
 
 interface User {
     id: string
-    name: string
+    name: string | null
     email: string
     avatar?: string
     role: 'ADMIN' | 'USER'
@@ -244,7 +244,7 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                         <tbody className="divide-y divide-gray-200">
                             {users.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.name}</td>
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.name || 'No Name'}</td>
                                     <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                                     <td className="px-6 py-4 text-sm">
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
