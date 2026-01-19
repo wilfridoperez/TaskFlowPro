@@ -1,6 +1,20 @@
 platforms:
   nodejs:
     detectFromFiles: false
+    enableDynamicInstall: true
+  php:
+    enabled: false
+  python:
+    enabled: false
+  ruby:
+    enabled: false
+  go:
+    enabled: false
+  dotnet:
+    enabled: false
     
 platformOrder:
   - nodejs
+  
+detectAllEnabledPlatforms: false
+detectPlatformsUsingFiles: false
