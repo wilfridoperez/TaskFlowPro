@@ -1,0 +1,14 @@
+.git
+.github
+.gitignore
+.next/cache
+node_modules
+.env.local
+.env.*.local
+*.md
+!README.md
+.vscode
+.idea
+*.log
+coverage
+.turbo
