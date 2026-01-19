@@ -61,7 +61,7 @@ export default function ProjectHeaderClient({ project, completedTasks, totalTask
                 </div>
 
                 {/* Project Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div className="flex items-center">
                         <Calendar className="w-5 h-5 text-gray-600 mr-2" />
                         <div>
@@ -81,6 +81,13 @@ export default function ProjectHeaderClient({ project, completedTasks, totalTask
                         <div>
                             <p className="text-sm text-gray-700">Budget</p>
                             <p className="font-medium text-gray-900">${editingProject.budget ? editingProject.budget.toLocaleString() : '0'}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center">
+                        <Users className="w-5 h-5 text-gray-600 mr-2" />
+                        <div>
+                            <p className="text-sm text-gray-700">Team Members</p>
+                            <p className="font-medium text-gray-900">{editingProject.teamMembers?.length || 0}</p>
                         </div>
                     </div>
                     <div className="flex items-center">
