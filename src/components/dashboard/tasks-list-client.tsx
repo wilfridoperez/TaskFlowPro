@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react'
 import { Filter, ChevronUp, ChevronDown } from 'lucide-react'
+import TaskDetailModal from './task-detail-modal'
+import { updateTaskById } from '@/lib/actions'
 
 interface Task {
     id: string
@@ -10,7 +12,11 @@ interface Task {
     status: string
     priority: string
     dueDate?: Date | string
+    startDate?: Date | string
     assignedTo?: string
+    assigneeId?: string
+    estimatedHours?: number
+    actualHours?: number
 }
 
 interface TasksListClientProps {
@@ -27,6 +33,8 @@ export default function TasksListClient({
     const [filterOpen, setFilterOpen] = useState(false)
     const [filterStatus, setFilterStatus] = useState<string>('ALL')
     const [filterPriority, setFilterPriority] = useState<string>('ALL')
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const filteredTasks = useMemo(() => {
         return tasks.filter(task => {
@@ -134,7 +142,14 @@ export default function TasksListClient({
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {filteredTasks.map((task) => (
-                                <tr key={task.id} className="hover:bg-gray-50 transition-colors">
+                                <tr 
+                                    key={task.id} 
+                                    onClick={() => {
+                                        setSelectedTask(task)
+                                        setIsModalOpen(true)
+                                    }}
+                                    className="hover:bg-blue-50 transition-colors cursor-pointer"
+                                >
                                     <td className="px-6 py-4">
                                         <div>
                                             <p className="text-sm font-medium text-gray-900">{task.title}</p>
@@ -165,6 +180,27 @@ export default function TasksListClient({
                     </table>
                 )}
             </div>
+
+            {/* Task Detail Modal */}
+            {selectedTask && (
+                <TaskDetailModal
+                    task={selectedTask}
+                    allTasks={tasks}
+                    users={[]}
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        setIsModalOpen(false)
+                        setSelectedTask(null)
+                    }}
+                    onSave={async (updates) => {
+                        try {
+                            await updateTaskById(selectedTask.id, updates)
+                        } catch (error) {
+                            console.error('Error saving task:', error)
+                        }
+                    }}
+                />
+            )}
         </div>
     )
 }

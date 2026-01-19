@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Save, Trash2 } from 'lucide-react'
+import { X, Save } from 'lucide-react'
 
 interface Task {
     id: string
@@ -11,8 +11,10 @@ interface Task {
     priority: string
     startDate?: Date | string
     dueDate?: Date | string
-    assignedTo: string
+    assignedTo?: string
     dependsOn?: string[]
+    estimatedHours?: number
+    actualHours?: number
 }
 
 interface User {
@@ -28,7 +30,7 @@ interface TaskDetailModalProps {
     users: User[]
     isOpen: boolean
     onClose: () => void
-    onSave: (updates: Partial<Task>) => void
+    onSave: (updates: Partial<Task>) => Promise<void>
 }
 
 export default function TaskDetailModal({
@@ -41,6 +43,7 @@ export default function TaskDetailModal({
 }: TaskDetailModalProps) {
     const [editedTask, setEditedTask] = useState<Partial<Task>>(task)
     const [hasChanges, setHasChanges] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
 
     const handleChange = (field: string, value: any) => {
         setEditedTask(prev => ({
@@ -51,12 +54,18 @@ export default function TaskDetailModal({
     }
 
     const handleSave = async () => {
-        onSave(editedTask)
-        setHasChanges(false)
-        // Small delay to allow parent to process the save
-        setTimeout(() => {
-            onClose()
-        }, 300)
+        setIsSaving(true)
+        try {
+            await onSave(editedTask)
+            setHasChanges(false)
+            setTimeout(() => {
+                onClose()
+            }, 300)
+        } catch (error) {
+            console.error('Error saving task:', error)
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     const handleClose = () => {
@@ -118,36 +127,38 @@ export default function TaskDetailModal({
                         />
                     </div>
 
-                    {/* Status */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Status
-                        </label>
-                        <select
-                            value={editedTask.status || 'TODO'}
-                            onChange={(e) => handleChange('status', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                        >
-                            <option value="TODO">To Do</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="COMPLETED">Completed</option>
-                        </select>
-                    </div>
-
-                    {/* Priority */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Priority
-                        </label>
-                        <select
-                            value={editedTask.priority || 'MEDIUM'}
-                            onChange={(e) => handleChange('priority', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                        >
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                        </select>
+                    {/* Status & Priority */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Status
+                            </label>
+                            <select
+                                value={editedTask.status || 'TODO'}
+                                onChange={(e) => handleChange('status', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                            >
+                                <option value="TODO">To Do</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="IN_REVIEW">In Review</option>
+                                <option value="DONE">Done</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Priority
+                            </label>
+                            <select
+                                value={editedTask.priority || 'MEDIUM'}
+                                onChange={(e) => handleChange('priority', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                            >
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="URGENT">Urgent</option>
+                            </select>
+                        </div>
                     </div>
 
                     {/* Start Date & Due Date */}
@@ -176,35 +187,63 @@ export default function TaskDetailModal({
                         </div>
                     </div>
 
-                    {/* Assigned To */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Assigned To
-                        </label>
-                        <select
-                            value={editedTask.assignedTo || ''}
-                            onChange={(e) => handleChange('assignedTo', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                        >
-                            <option value="">Unassigned</option>
-                            {users.map(user => (
-                                <option key={user.id} value={user.id}>
-                                    {user.name}
-                                </option>
-                            ))}
-                        </select>
+                    {/* Hours */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Estimated Hours
+                            </label>
+                            <input
+                                type="number"
+                                step="0.5"
+                                value={editedTask.estimatedHours || ''}
+                                onChange={(e) => handleChange('estimatedHours', e.target.value ? parseFloat(e.target.value) : 0)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Actual Hours
+                            </label>
+                            <input
+                                type="number"
+                                step="0.5"
+                                value={editedTask.actualHours || ''}
+                                onChange={(e) => handleChange('actualHours', e.target.value ? parseFloat(e.target.value) : 0)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                            />
+                        </div>
                     </div>
 
+                    {/* Assigned To */}
+                    {users && users.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Assigned To
+                            </label>
+                            <select
+                                value={editedTask.assignedTo || ''}
+                                onChange={(e) => handleChange('assignedTo', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                            >
+                                <option value="">Unassigned</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     {/* Dependencies */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Depends On (Select tasks this one depends on)
-                        </label>
-                        <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3">
-                            {otherTasks.length === 0 ? (
-                                <p className="text-sm text-gray-700">No other tasks in this project</p>
-                            ) : (
-                                otherTasks.map(depTask => (
+                    {otherTasks.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Depends On (Select tasks this one depends on)
+                            </label>
+                            <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3">
+                                {otherTasks.map(depTask => (
                                     <label key={depTask.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
                                         <input
                                             type="checkbox"
@@ -223,41 +262,31 @@ export default function TaskDetailModal({
                                             <p className="text-xs text-gray-700">{depTask.status.replace('_', ' ').toLowerCase()}</p>
                                         </div>
                                     </label>
-                                ))
-                            )}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Footer */}
                 <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50 sticky bottom-0">
                     <button
-                        onClick={() => {
-                            if (confirm('Delete this task?')) {
-                                // Handle delete
-                            }
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                        onClick={handleClose}
+                        className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
                     >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
+                        Cancel
                     </button>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={handleClose}
-                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={!hasChanges}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-                        >
-                            <Save className="w-4 h-4" />
-                            Save Changes
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleSave}
+                        disabled={!hasChanges || isSaving}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${hasChanges && !isSaving
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                    >
+                        <Save className="w-4 h-4" />
+                        {isSaving ? 'Saving...' : 'Save Changes'}
+                    </button>
                 </div>
             </div>
         </div>
