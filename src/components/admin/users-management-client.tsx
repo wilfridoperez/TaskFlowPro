@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Trash2, Edit2, Plus, Key } from 'lucide-react'
+import { createUser, updateUser, deleteUser } from '@/lib/actions'
 import ResetPasswordModal from './reset-password-modal'
 
 interface User {
@@ -25,25 +26,72 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
     const [editingId, setEditingId] = useState<string | null>(null)
     const [selectedUserForPasswordReset, setSelectedUserForPasswordReset] = useState<User | null>(null)
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
 
-    const handleAddUser = () => {
-        if (formData.name && formData.email) {
+    const handleAddUser = async () => {
+        if (!formData.name || !formData.email) {
+            setError('Name and email are required')
+            return
+        }
+
+        setLoading(true)
+        setError('')
+        setSuccess('')
+
+        try {
             if (editingId) {
-                setUsers(users.map(u => u.id === editingId ? { ...u, name: formData.name, email: formData.email, role: formData.role } : u))
-                setEditingId(null)
-            } else {
-                const newUser: User = {
-                    id: Math.random().toString(),
+                // Update existing user
+                const result = await updateUser(editingId, {
                     name: formData.name,
                     email: formData.email,
-                    role: formData.role,
-                    status: 'ACTIVE',
-                    createdAt: new Date().toISOString().split('T')[0]
+                    role: formData.role
+                })
+
+                if (result.success && result.user) {
+                    setUsers(users.map(u => u.id === editingId ? {
+                        ...u,
+                        name: result.user.name,
+                        email: result.user.email,
+                        role: result.user.role
+                    } : u))
+                    setSuccess('User updated successfully')
+                    setEditingId(null)
+                } else {
+                    setError(result.error || 'Failed to update user')
                 }
-                setUsers([...users, newUser])
+            } else {
+                // Create new user
+                const result = await createUser({
+                    name: formData.name,
+                    email: formData.email,
+                    role: formData.role
+                })
+
+                if (result.success && result.user) {
+                    const newUser: User = {
+                        id: result.user.id,
+                        name: result.user.name,
+                        email: result.user.email,
+                        role: result.user.role,
+                        status: 'ACTIVE',
+                        createdAt: new Date().toISOString().split('T')[0]
+                    }
+                    setUsers([...users, newUser])
+                    setSuccess('User created successfully')
+                } else {
+                    setError(result.error || 'Failed to create user')
+                }
             }
+
             setFormData({ name: '', email: '', role: 'USER' })
             setShowForm(false)
+        } catch (err) {
+            setError('An error occurred')
+            console.error(err)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -51,10 +99,32 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
         setFormData({ name: user.name, email: user.email, role: user.role })
         setEditingId(user.id)
         setShowForm(true)
+        setError('')
+        setSuccess('')
     }
 
-    const handleDelete = (id: string) => {
-        setUsers(users.filter(u => u.id !== id))
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this user?')) return
+
+        setLoading(true)
+        setError('')
+        setSuccess('')
+
+        try {
+            const result = await deleteUser(id)
+
+            if (result.success) {
+                setUsers(users.filter(u => u.id !== id))
+                setSuccess('User deleted successfully')
+            } else {
+                setError(result.error || 'Failed to delete user')
+            }
+        } catch (err) {
+            setError('An error occurred')
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleResetPassword = (user: User) => {
@@ -71,6 +141,8 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                         setShowForm(!showForm)
                         setEditingId(null)
                         setFormData({ name: '', email: '', role: 'USER' })
+                        setError('')
+                        setSuccess('')
                     }}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                 >
@@ -78,6 +150,18 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                     Add User
                 </button>
             </div>
+
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    {error}
+                </div>
+            )}
+
+            {success && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                    {success}
+                </div>
+            )}
 
             {showForm && (
                 <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -117,17 +201,21 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                         <div className="flex gap-2">
                             <button
                                 onClick={handleAddUser}
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                disabled={loading}
+                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
                             >
-                                {editingId ? 'Update User' : 'Create User'}
+                                {loading ? 'Processing...' : (editingId ? 'Update User' : 'Create User')}
                             </button>
                             <button
                                 onClick={() => {
                                     setShowForm(false)
                                     setEditingId(null)
                                     setFormData({ name: '', email: '', role: 'USER' })
+                                    setError('')
+                                    setSuccess('')
                                 }}
-                                className="flex-1 bg-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-400"
+                                disabled={loading}
+                                className="flex-1 bg-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
                             >
                                 Cancel
                             </button>

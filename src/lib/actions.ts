@@ -354,3 +354,125 @@ export const adminResetPassword = async (userId: string, newPassword: string) =>
         return { success: false, error: 'Failed to reset password' }
     }
 }
+
+// ============================================================================
+// USER MUTATIONS
+// ============================================================================
+
+export const createUser = async (userData: {
+    name: string
+    email: string
+    role: 'ADMIN' | 'USER'
+    password?: string
+}) => {
+    try {
+        // Check if user already exists
+        const existingUser = await prisma.user.findUnique({
+            where: { email: userData.email }
+        })
+
+        if (existingUser) {
+            return { success: false, error: 'User with this email already exists' }
+        }
+
+        // Generate temporary password if not provided
+        const tempPassword = userData.password || Math.random().toString(36).slice(-12)
+        const hashedPassword = await bcrypt.hash(tempPassword, 10)
+
+        // Create user
+        const newUser = await prisma.user.create({
+            data: {
+                name: userData.name,
+                email: userData.email,
+                password: hashedPassword,
+                role: userData.role,
+                emailVerified: null
+            }
+        })
+
+        // Send welcome email with temporary password
+        if (!userData.password) {
+            const emailContent = `
+                <h2>Welcome to TaskFlow Pro</h2>
+                <p>Hi ${userData.name},</p>
+                <p>Your account has been created by an administrator.</p>
+                <p>Your temporary password is: <strong>${tempPassword}</strong></p>
+                <p>Please log in and change your password immediately.</p>
+                <p>Login URL: ${process.env.NEXT_PUBLIC_APP_URL}/auth/signin</p>
+            `
+            await sendEmail({
+                to: userData.email,
+                subject: 'Your TaskFlow Pro Account Has Been Created',
+                html: emailContent,
+                text: `Your temporary password is: ${tempPassword}. Please log in and change your password.`
+            })
+        }
+
+        revalidatePath('/admin/users', 'layout')
+        return { success: true, message: 'User created successfully', user: newUser }
+    } catch (error) {
+        console.error('Error creating user:', error)
+        return { success: false, error: 'Failed to create user' }
+    }
+}
+
+export const updateUser = async (userId: string, userData: {
+    name: string
+    email: string
+    role: 'ADMIN' | 'USER'
+}) => {
+    try {
+        // Check if email is taken by another user
+        const existingUser = await prisma.user.findUnique({
+            where: { email: userData.email }
+        })
+
+        if (existingUser && existingUser.id !== userId) {
+            return { success: false, error: 'Email is already taken' }
+        }
+
+        // Update user
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                name: userData.name,
+                email: userData.email,
+                role: userData.role
+            }
+        })
+
+        revalidatePath('/admin/users', 'layout')
+        return { success: true, message: 'User updated successfully', user: updatedUser }
+    } catch (error) {
+        console.error('Error updating user:', error)
+        return { success: false, error: 'Failed to update user' }
+    }
+}
+
+export const deleteUser = async (userId: string) => {
+    try {
+        // Prevent deleting the last admin
+        const adminCount = await prisma.user.count({
+            where: { role: 'ADMIN' }
+        })
+
+        const userToDelete = await prisma.user.findUnique({
+            where: { id: userId }
+        })
+
+        if (userToDelete?.role === 'ADMIN' && adminCount <= 1) {
+            return { success: false, error: 'Cannot delete the last admin user' }
+        }
+
+        // Delete user
+        await prisma.user.delete({
+            where: { id: userId }
+        })
+
+        revalidatePath('/admin/users', 'layout')
+        return { success: true, message: 'User deleted successfully' }
+    } catch (error) {
+        console.error('Error deleting user:', error)
+        return { success: false, error: 'Failed to delete user' }
+    }
+}
