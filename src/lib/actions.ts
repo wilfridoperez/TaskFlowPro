@@ -188,3 +188,132 @@ export const deleteTask = async (taskId: string) => {
     revalidatePath('/dashboard/projects', 'layout')
     return true
 }
+
+/**
+ * Password Management Actions
+ */
+
+import bcrypt from 'bcryptjs'
+import { sendEmail, generatePasswordChangedEmail, generatePasswordResetEmail } from './email'
+import { auth } from './auth'
+
+export const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+    try {
+        // Get user
+        const user = await prisma.user.findUnique({ where: { id: userId } })
+        if (!user) {
+            return { success: false, error: 'User not found' }
+        }
+
+        // Verify current password
+        if (!user.password) {
+            return { success: false, error: 'Your account does not have a password set' }
+        }
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
+        if (!isPasswordValid) {
+            return { success: false, error: 'Current password is incorrect' }
+        }
+
+        // Hash and save new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        await prisma.user.update({
+            where: { id: userId },
+            data: { password: hashedPassword }
+        })
+
+        // Send notification email
+        if (user.email) {
+            const emailContent = generatePasswordChangedEmail(user.name || 'User')
+            await sendEmail({
+                to: user.email,
+                ...emailContent,
+            })
+        }
+
+        revalidatePath('/dashboard/settings', 'layout')
+        return { success: true, message: 'Password changed successfully' }
+    } catch (error) {
+        console.error('Error changing password:', error)
+        return { success: false, error: 'Failed to change password' }
+    }
+}
+
+export const requestPasswordReset = async (email: string) => {
+    try {
+        // Check if user exists
+        const user = await prisma.user.findUnique({ where: { email } })
+        if (!user) {
+            // Don't reveal if email exists (security best practice)
+            return { success: true, message: 'If an account exists, a reset link has been sent' }
+        }
+
+        // Generate reset token
+        const token = require('crypto').randomBytes(32).toString('hex')
+        const expires = new Date(Date.now() + 3600000) // 1 hour
+
+        // Save reset token
+        await prisma.passwordReset.create({
+            data: {
+                email,
+                token,
+                expires,
+            }
+        })
+
+        // Send reset email
+        const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`
+        const emailContent = generatePasswordResetEmail(resetLink, user.name || 'User')
+        await sendEmail({
+            to: email,
+            ...emailContent,
+        })
+
+        return { success: true, message: 'Password reset link sent to your email' }
+    } catch (error) {
+        console.error('Error requesting password reset:', error)
+        return { success: false, error: 'Failed to process reset request' }
+    }
+}
+
+export const resetPassword = async (email: string, token: string, newPassword: string) => {
+    try {
+        // Verify token
+        const resetRecord = await prisma.passwordReset.findUnique({ where: { token } })
+        if (!resetRecord || resetRecord.email !== email) {
+            return { success: false, error: 'Invalid or expired reset link' }
+        }
+
+        if (new Date() > resetRecord.expires) {
+            return { success: false, error: 'Reset link has expired' }
+        }
+
+        // Get user
+        const user = await prisma.user.findUnique({ where: { email } })
+        if (!user) {
+            return { success: false, error: 'User not found' }
+        }
+
+        // Hash and save new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { password: hashedPassword }
+        })
+
+        // Delete used reset token
+        await prisma.passwordReset.delete({ where: { token } })
+
+        // Send confirmation email
+        const emailContent = generatePasswordChangedEmail(user.name || 'User')
+        await sendEmail({
+            to: email,
+            ...emailContent,
+        })
+
+        return { success: true, message: 'Password has been reset successfully' }
+    } catch (error) {
+        console.error('Error resetting password:', error)
+        return { success: false, error: 'Failed to reset password' }
+    }
+}

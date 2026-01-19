@@ -10,11 +10,17 @@ DATABASE_URL="postgresql://dbadmin:LocalPassword123@localhost:5432/taskflow"
 NEXTAUTH_SECRET="local-secret-for-development-only"
 NEXTAUTH_URL="http://localhost:3000"
 
-# Stripe (Optional)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_xxx"
-STRIPE_SECRET_KEY="sk_test_xxx"
+# Email Configuration (For Password Reset & Account Notifications)
+# Using Mailtrap (free service for development)
+EMAIL_HOST="smtp.mailtrap.io"
+EMAIL_PORT="2525"
+EMAIL_SECURE="false"
+EMAIL_USER="your_mailtrap_user"
+EMAIL_PASSWORD="your_mailtrap_password"
+EMAIL_FROM="noreply@taskflow.pro"
 
 # Application
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NODE_ENV="development"
 DEBUG=true
 ```

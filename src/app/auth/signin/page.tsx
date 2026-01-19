@@ -75,10 +75,17 @@ export default function SignInPage() {
                         <SubmitButton />
                     </div>
 
-                    <div className="text-center">
-                        <Link href="/auth/signup" className="text-blue-600 hover:text-blue-800">
-                            Don't have an account? Sign up
-                        </Link>
+                    <div className="text-center space-y-2">
+                        <div>
+                            <Link href="/auth/forgot-password" className="text-blue-600 hover:text-blue-800 text-sm">
+                                Forgot your password?
+                            </Link>
+                        </div>
+                        <div>
+                            <Link href="/auth/signup" className="text-blue-600 hover:text-blue-800">
+                                Don't have an account? Sign up
+                            </Link>
+                        </div>
                     </div>
                 </form>
             </div>
