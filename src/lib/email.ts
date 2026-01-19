@@ -23,6 +23,16 @@ export interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions) {
     try {
+        // Skip email sending if credentials are not configured
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD || 
+            process.env.EMAIL_USER === 'your_mailtrap_user' || 
+            process.env.EMAIL_PASSWORD === 'your_mailtrap_password') {
+            console.warn('⚠️  Email service not configured. Skipping email send.')
+            console.warn(`📧 Would have sent email to: ${options.to}`)
+            console.warn(`📧 Subject: ${options.subject}`)
+            return { success: true, messageId: 'dev-mock-' + Date.now() }
+        }
+
         const info = await transporter.sendMail({
             from: process.env.EMAIL_FROM || 'noreply@taskflow.pro',
             to: options.to,
@@ -31,10 +41,17 @@ export async function sendEmail(options: EmailOptions) {
             html: options.html,
         })
 
-        console.log('Email sent:', info.messageId)
+        console.log('✅ Email sent:', info.messageId)
         return { success: true, messageId: info.messageId }
     } catch (error) {
-        console.error('Error sending email:', error)
+        console.error('❌ Error sending email:', error)
+        
+        // In development, don't fail the operation if email fails
+        if (process.env.NODE_ENV === 'development') {
+            console.warn('⚠️  Email failed in development mode. Operation continues.')
+            return { success: true, messageId: 'dev-error-' + Date.now() }
+        }
+        
         return { success: false, error }
     }
 }
