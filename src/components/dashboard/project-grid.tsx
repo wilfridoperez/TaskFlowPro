@@ -25,7 +25,12 @@ export async function ProjectGrid() {
                             <p className="text-gray-500">No projects yet. <Link href="/dashboard/projects/new" className="text-blue-600 hover:text-blue-700">Create one</Link></p>
                         </li>
                     ) : (
-                        projects.map((project) => (
+                        projects.map((project) => {
+                            const completedTasks = project.tasks?.filter((t: any) => t.status === 'DONE').length || 0
+                            const totalTasks = project.tasks?.length || 0
+                            const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+
+                            return (
                             <li key={project.id} className="px-4 py-4 sm:px-6">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
@@ -49,20 +54,25 @@ export async function ProjectGrid() {
                                             <span>{project.teamMembers?.length || 0} members</span>
                                         </div>
                                         <div className="mt-3">
+                                            <div className="flex justify-between text-xs text-gray-600 mb-1">
+                                                <span>Progress</span>
+                                                <span>{progress}%</span>
+                                            </div>
                                             <div className="bg-gray-200 rounded-full h-2">
                                                 <div
                                                     className="bg-blue-600 h-2 rounded-full"
-                                                    style={{ width: `50%` }}
+                                                    style={{ width: `${progress}%` }}
                                                 ></div>
                                             </div>
                                             <div className="mt-1 text-xs text-gray-500">
-                                                Status: {project.status}
+                                                {completedTasks}/{totalTasks} tasks completed
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </li>
-                        ))
+                            )
+                        })
                     )}
                 </ul>
             </div>
