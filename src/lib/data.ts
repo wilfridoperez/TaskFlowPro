@@ -146,7 +146,9 @@ export const getProjectsByUserId = async (userId: string) => {
  * Get all tasks
  */
 export const getAllTasks = async () => {
-    const tasks = await prisma.task.findMany()
+    const tasks = await prisma.task.findMany({
+        orderBy: { updatedAt: 'desc' }
+    })
     return tasks.map(formatTask)
 }
 
