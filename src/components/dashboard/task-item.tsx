@@ -71,6 +71,9 @@ export default function TaskItem({ task }: TaskItemProps) {
                             </Link>
                         </h4>
                         <div className="flex items-center mt-1 text-xs text-gray-500">
+                            {task.projectName && (
+                                <span className="mr-3 font-medium text-gray-600">{task.projectName}</span>
+                            )}
                             <span className="mr-3">Due {dueDateStr}</span>
                             <span
                                 className={`font-medium ${priorityColors[task.priority as keyof typeof priorityColors]
