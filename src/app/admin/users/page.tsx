@@ -1,7 +1,7 @@
 import { getUsers } from '@/lib/data'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import UsersManagementClient from '@/components/admin/users-management-client'
+import UsersWrapper from './users-wrapper'
 
 export default async function UsersPage() {
     const session = await auth()
@@ -23,5 +23,5 @@ export default async function UsersPage() {
         createdAt: new Date().toISOString().split('T')[0],
     }))
 
-    return <UsersManagementClient initialUsers={users} />
+    return <UsersWrapper initialUsers={users} />
 }
