@@ -107,7 +107,7 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                     </div>
 
                     {/* Project Details */}
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 mb-4">
                         <div className="flex items-center mb-2">
                             <span>Due: {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}</span>
                         </div>
@@ -120,6 +120,15 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                             </span>
                         </div>
                     </div>
+
+                    {/* Edit Button */}
+                    <Link
+                        href={`/dashboard/projects/${project.id}`}
+                        className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors font-medium"
+                    >
+                        <Edit2 className="w-4 h-4" />
+                        Edit
+                    </Link>
                 </div>
             </div>
         )
