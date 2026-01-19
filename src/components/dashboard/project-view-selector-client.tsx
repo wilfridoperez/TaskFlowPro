@@ -66,7 +66,7 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
     }, [projects, filterStatus, filterMinBudget, filterMaxBudget, filterTeamSize])
 
     const ProjectCard = ({ project }: { project: Project }) => {
-        const completedTasks = project.tasks?.filter((t: any) => t.status === 'COMPLETED').length || 0
+        const completedTasks = project.tasks?.filter((t: any) => t.status === 'DONE').length || 0
         const totalTasks = project.tasks?.length || 0
         const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
@@ -137,7 +137,7 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
     }
 
     const ProjectRow = ({ project }: { project: Project }) => {
-        const completedTasks = project.tasks?.filter((t: any) => t.status === 'COMPLETED').length || 0
+        const completedTasks = project.tasks?.filter((t: any) => t.status === 'DONE').length || 0
         const totalTasks = project.tasks?.length || 0
         const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
