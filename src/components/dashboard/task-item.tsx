@@ -71,8 +71,13 @@ export default function TaskItem({ task }: TaskItemProps) {
                             </Link>
                         </h4>
                         <div className="flex items-center mt-1 text-xs text-gray-500">
-                            {task.projectName && (
-                                <span className="mr-3 font-medium text-gray-600">{task.projectName}</span>
+                            {task.projectName && task.projectId && (
+                                <Link
+                                    href={`/dashboard/projects/${task.projectId}`}
+                                    className="mr-3 font-medium text-gray-600 hover:text-blue-600 hover:underline"
+                                >
+                                    {task.projectName}
+                                </Link>
                             )}
                             <span className="mr-3">Due {dueDateStr}</span>
                             <span
