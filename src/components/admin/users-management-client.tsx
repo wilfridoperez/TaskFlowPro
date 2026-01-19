@@ -52,7 +52,7 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                 if (result.success && result.user) {
                     setUsers(users.map(u => u.id === editingId ? {
                         ...u,
-                        name: result.user.name,
+                        name: result.user.name || u.name,
                         email: result.user.email,
                         role: result.user.role
                     } : u))
