@@ -103,7 +103,8 @@ export const getUserByEmail = async (email: string) => {
  */
 export const getAllProjects = async () => {
     const projects = await prisma.project.findMany({
-        include: { tasks: true }
+        include: { tasks: true },
+        orderBy: { updatedAt: 'desc' }
     })
     return projects.map(p => formatProject(p, p.tasks))
 }
@@ -131,7 +132,8 @@ export const getProject = async (id: string) => {
 export const getProjectsByUserId = async (userId: string) => {
     const projects = await prisma.project.findMany({
         where: { ownerId: userId },
-        include: { tasks: true }
+        include: { tasks: true },
+        orderBy: { updatedAt: 'desc' }
     })
     return projects.map(p => formatProject(p, p.tasks))
 }
