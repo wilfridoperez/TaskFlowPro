@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { ArrowLeft, Plus, CheckCircle, Clock, AlertCircle, Calendar, Flag } from "lucide-react"
 import Link from "next/link"
+import { getAllTasks } from "@/lib/data"
 
 const mockTasks = [
     {
@@ -93,12 +94,30 @@ const priorityColors = {
     URGENT: "text-red-700",
 }
 
-export default async function TasksPage() {
+export default async function TasksPage({
+    searchParams
+}: {
+    searchParams: Promise<{ status?: string }>
+}) {
     const session = await auth()
 
     if (!session) {
         redirect("/auth/signin")
     }
+
+    const { status } = await searchParams
+    
+    // Fetch real tasks from database
+    const allTasks = await getAllTasks()
+    
+    // Filter tasks by status if provided
+    const tasks = status
+        ? allTasks.filter(task => task.status === status)
+        : allTasks
+    
+    const pageTitle = status 
+        ? `${status.replace('_', ' ').toLowerCase()} Tasks`
+        : "All Tasks"
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -110,7 +129,7 @@ export default async function TasksPage() {
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Dashboard
                         </Link>
-                        <h1 className="text-3xl font-bold text-gray-900">All Tasks</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">{pageTitle}</h1>
                     </div>
                     <Link
                         href="/dashboard/tasks/new"
@@ -184,7 +203,11 @@ export default async function TasksPage() {
                                 )
                             })}
                         </ul>
-                    </div>
+                        {tasks.length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-gray-500 text-lg">No tasks found. {status && <Link href="/dashboard/tasks" className="text-blue-600 hover:text-blue-800">View all tasks</Link>}</p>
+                            </div>
+                        )}
                 </div>
             </div>
         </div>

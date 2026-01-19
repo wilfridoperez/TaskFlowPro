@@ -1,4 +1,5 @@
 import { BarChart3, CheckCircle, Clock, Users } from "lucide-react"
+import Link from "next/link"
 import { prisma } from "@/lib/prisma-client"
 
 export async function StatsOverview() {
@@ -7,7 +8,7 @@ export async function StatsOverview() {
     const allTasks = await prisma.task.findMany({
         select: { status: true }
     })
-    
+
     const activeTasks = allTasks.filter(t => t.status === 'IN_PROGRESS').length
     const completedTasks = allTasks.filter(t => t.status === 'COMPLETED').length
     const totalTeamMembers = await prisma.user.count()
@@ -32,6 +33,7 @@ export async function StatsOverview() {
             icon: BarChart3,
             change: `${parseFloat(projectsChange) >= 0 ? '+' : ''}${projectsChange}%`,
             changeType: parseFloat(projectsChange) >= 0 ? "positive" : "negative",
+            href: "/dashboard/projects",
         },
         {
             name: "Active Tasks",
@@ -39,6 +41,7 @@ export async function StatsOverview() {
             icon: Clock,
             change: `${parseFloat(tasksChange) >= 0 ? '+' : ''}${tasksChange}%`,
             changeType: parseFloat(tasksChange) >= 0 ? "positive" : "negative",
+            href: "/dashboard/tasks?status=IN_PROGRESS",
         },
         {
             name: "Completed Tasks",
@@ -46,6 +49,7 @@ export async function StatsOverview() {
             icon: CheckCircle,
             change: `${parseFloat(completedChange) >= 0 ? '+' : ''}${completedChange}%`,
             changeType: parseFloat(completedChange) >= 0 ? "positive" : "negative",
+            href: "/dashboard/tasks?status=COMPLETED",
         },
         {
             name: "Team Members",
@@ -53,36 +57,36 @@ export async function StatsOverview() {
             icon: Users,
             change: `${membersChange >= 0 ? '+' : ''}${membersChange}`,
             changeType: membersChange >= 0 ? "positive" : "negative",
+            href: "/admin/users",
         },
     ]
 
     return (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
-                <div
-                    key={stat.name}
-                    className="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden"
-                >
-                    <dt>
-                        <div className="absolute bg-blue-500 rounded-md p-3">
-                            <stat.icon className="h-6 w-6 text-white" aria-hidden="true" />
-                        </div>
-                        <p className="ml-16 text-sm font-medium text-gray-700 truncate">
-                            {stat.name}
-                        </p>
-                    </dt>
-                    <dd className="ml-16 pb-6 flex items-baseline sm:pb-7">
-                        <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-                        <p
-                            className={`ml-2 flex items-baseline text-sm font-semibold ${stat.changeType === "positive"
-                                ? "text-green-600"
-                                : "text-red-600"
-                                }`}
-                        >
-                            {stat.change}
-                        </p>
-                    </dd>
-                </div>
+                <Link key={stat.name} href={stat.href}>
+                    <div className="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
+                        <dt>
+                            <div className="absolute bg-blue-500 rounded-md p-3">
+                                <stat.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                            </div>
+                            <p className="ml-16 text-sm font-medium text-gray-700 truncate">
+                                {stat.name}
+                            </p>
+                        </dt>
+                        <dd className="ml-16 pb-6 flex items-baseline sm:pb-7">
+                            <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
+                            <p
+                                className={`ml-2 flex items-baseline text-sm font-semibold ${stat.changeType === "positive"
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
+                            >
+                                {stat.change}
+                            </p>
+                        </dd>
+                    </div>
+                </Link>
             ))}
         </div>
     )
