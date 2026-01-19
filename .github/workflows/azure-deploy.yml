@@ -46,7 +46,7 @@ jobs:
           mkdir -p deploy
           cp -r .next deploy/
           cp -r public deploy/
-          cp package.json package-lock.json .deployment web.config deploy/
+          cp package.json package-lock.json .deployment startup.sh web.config deploy/
           cd deploy && zip -r ../deploy.zip . -q
           ls -lh ../deploy.zip
 
