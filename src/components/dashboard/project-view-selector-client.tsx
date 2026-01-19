@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Grid3X3, List } from 'lucide-react'
+import { Grid3X3, List, Edit2 } from 'lucide-react'
+import Link from 'next/link'
 
 interface Project {
     id: string
@@ -141,6 +142,15 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                 <td className="px-6 py-4 text-sm font-medium text-green-600">
                     ${(project.budget || 0).toLocaleString()}
                 </td>
+                <td className="px-6 py-4 text-sm text-right">
+                    <Link
+                        href={`/dashboard/projects/${project.id}`}
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors font-medium"
+                    >
+                        <Edit2 className="w-4 h-4" />
+                        Edit
+                    </Link>
+                </td>
             </tr>
         )
     }
@@ -153,8 +163,8 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                 <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                     title="Grid View"
                 >
@@ -163,8 +173,8 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                 <button
                     onClick={() => setViewMode('list')}
                     className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                     title="List View"
                 >
@@ -213,6 +223,9 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                                         Budget
+                                    </th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                        Actions
                                     </th>
                                 </tr>
                             </thead>
