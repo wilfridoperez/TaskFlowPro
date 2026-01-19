@@ -41,12 +41,16 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
 
+      - name: Prune dev dependencies
+        run: npm prune --omit=dev --legacy-peer-deps
+
       - name: Create deployment package
         run: |
           mkdir -p deploy
           cp -r .next deploy/
           cp -r public deploy/
-          cp package.json package-lock.json .deployment startup.sh web.config deploy/
+          cp -r node_modules deploy/
+          cp package.json package-lock.json web.config deploy/
           cd deploy && zip -r ../deploy.zip . -q
           ls -lh ../deploy.zip
 
