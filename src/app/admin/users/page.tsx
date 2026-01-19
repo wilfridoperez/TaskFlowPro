@@ -1,7 +1,7 @@
 import { getUsers } from '@/lib/data'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import UsersWrapper from './users-wrapper'
+import UsersWrapper from '@/components/admin/users-wrapper'
 
 export default async function UsersPage() {
     const session = await auth()
