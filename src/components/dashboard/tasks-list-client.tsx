@@ -95,7 +95,7 @@ export default function TasksListClient({
                                 <option value="TODO">To Do</option>
                                 <option value="IN_PROGRESS">In Progress</option>
                                 <option value="IN_REVIEW">In Review</option>
-                                <option value="COMPLETED">Completed</option>
+                                <option value="DONE">Done</option>
                             </select>
                         </div>
                         <div>

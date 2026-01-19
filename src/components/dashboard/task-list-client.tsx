@@ -28,7 +28,7 @@ type SortField = 'title' | 'priority' | 'startDate' | 'dueDate' | 'status' | 'as
 type SortOrder = 'asc' | 'desc'
 
 const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 }
-const statusOrder = { TODO: 0, IN_PROGRESS: 1, COMPLETED: 2 }
+const statusOrder = { TODO: 0, IN_PROGRESS: 1, IN_REVIEW: 2, DONE: 3 }
 
 export default function TaskListClient({ tasks, users }: { tasks: Task[], users: User[] }) {
     const [sortField, setSortField] = useState<SortField>('dueDate')
@@ -102,7 +102,7 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
         if (!task || !task.dependsOn || task.dependsOn.length === 0) return 'none'
         const allDependenciesComplete = task.dependsOn.every(depId => {
             const depTask = getTaskById(depId)
-            return depTask?.status === 'COMPLETED'
+            return depTask?.status === 'DONE'
         })
         return allDependenciesComplete ? 'ready' : 'blocked'
     }
@@ -218,7 +218,7 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
                                 <option value="ALL">All Statuses</option>
                                 <option value="TODO">To Do</option>
                                 <option value="IN_PROGRESS">In Progress</option>
-                                <option value="COMPLETED">Completed</option>
+                                <option value="DONE">Done</option>
                             </select>
                         </div>
                         <div>
@@ -376,7 +376,7 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
                                                         <div className="mt-2 ml-4 text-xs space-y-1 border-l-2 border-blue-300 pl-3">
                                                             {dependencies.map(dep => (
                                                                 <div key={dep?.id} className="text-gray-600">
-                                                                    <span className={`inline-block px-2 py-0.5 rounded ${dep?.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                                                                    <span className={`inline-block px-2 py-0.5 rounded ${dep?.status === 'DONE' ? 'bg-green-100 text-green-800' :
                                                                         dep?.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
                                                                             'bg-gray-100 text-gray-800'
                                                                         }`}>
@@ -417,14 +417,14 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
                                         <select
                                             value={displayTask?.status || 'TODO'}
                                             onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                                            className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${displayTask?.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                                            className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${displayTask?.status === 'DONE' ? 'bg-green-100 text-green-800' :
                                                 displayTask?.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
                                                     'bg-gray-100 text-gray-800'
                                                 }`}
                                         >
                                             <option value="TODO">To Do</option>
                                             <option value="IN_PROGRESS">In Progress</option>
-                                            <option value="COMPLETED">Completed</option>
+                                            <option value="DONE">Done</option>
                                         </select>
                                     </td>
                                     <td className="py-3 px-4">

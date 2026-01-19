@@ -47,7 +47,7 @@ export const MOCK_TASKS = [
         id: "task-1",
         title: "Setup Project Infrastructure",
         description: "Initialize the project with proper folder structure and dependencies",
-        status: "COMPLETED",
+        status: "DONE",
         priority: "HIGH",
         startDate: new Date('2025-12-01'),
         dueDate: new Date('2025-12-15'),

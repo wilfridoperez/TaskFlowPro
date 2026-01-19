@@ -52,7 +52,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     // Type assertion to ensure project is not null after the if check
     const safeProject = project as NonNullable<typeof project>
 
-    const completedTasks = safeProject.tasks.filter((task: any) => task.status === 'COMPLETED').length
+    const completedTasks = safeProject.tasks.filter((task: any) => task.status === 'DONE').length
     const totalTasks = safeProject.tasks.length
 
     return (
