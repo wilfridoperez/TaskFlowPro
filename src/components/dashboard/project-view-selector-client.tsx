@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Grid3X3, List, Edit2, Filter, ChevronUp, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
+import ProjectDetailModal from './project-detail-modal'
 
 interface Project {
     id: string
@@ -26,6 +27,7 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
     const [filterMinBudget, setFilterMinBudget] = useState<string>('')
     const [filterMaxBudget, setFilterMaxBudget] = useState<string>('')
     const [filterTeamSize, setFilterTeamSize] = useState<string>('ALL')
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -122,13 +124,13 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                     </div>
 
                     {/* Edit Button */}
-                    <Link
-                        href={`/dashboard/projects/${project.id}`}
+                    <button
+                        onClick={() => setSelectedProject(project)}
                         className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors font-medium"
                     >
                         <Edit2 className="w-4 h-4" />
                         Edit
-                    </Link>
+                    </button>
                 </div>
             </div>
         )
@@ -178,13 +180,13 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                     ${(project.budget || 0).toLocaleString()}
                 </td>
                 <td className="px-6 py-4 text-sm text-right">
-                    <Link
-                        href={`/dashboard/projects/${project.id}`}
+                    <button
+                        onClick={() => setSelectedProject(project)}
                         className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors font-medium"
                     >
                         <Edit2 className="w-4 h-4" />
                         Edit
-                    </Link>
+                    </button>
                 </td>
             </tr>
         )
@@ -364,6 +366,13 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                     )}
                 </div>
             )}
-        </>
+            {/* Project Detail Modal */}
+            {selectedProject && (
+                <ProjectDetailModal
+                    project={selectedProject}
+                    isOpen={!!selectedProject}
+                    onClose={() => setSelectedProject(null)}
+                />
+            )}        </>
     )
 }
