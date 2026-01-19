@@ -72,7 +72,7 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
                 if (result.success && result.user) {
                     const newUser: User = {
                         id: result.user.id,
-                        name: result.user.name,
+                        name: result.user.name || null,
                         email: result.user.email,
                         role: result.user.role,
                         status: 'ACTIVE',
@@ -96,7 +96,7 @@ export default function UsersManagementClient({ initialUsers }: UsersManagementC
     }
 
     const handleEdit = (user: User) => {
-        setFormData({ name: user.name, email: user.email, role: user.role })
+        setFormData({ name: user.name || '', email: user.email, role: user.role })
         setEditingId(user.id)
         setShowForm(true)
         setError('')
