@@ -1,3 +1,6 @@
 platforms:
+  nodejs:
+    detectFromFiles: false
+    
+platformOrder:
   - nodejs
-skipPlatformDetection: true
