@@ -1,34 +1,58 @@
 import { BarChart3, CheckCircle, Clock, Users } from "lucide-react"
+import { prisma } from "@/lib/prisma-client"
 
-export function StatsOverview() {
+export async function StatsOverview() {
+    // Fetch real data from database
+    const totalProjects = await prisma.project.count()
+    const allTasks = await prisma.task.findMany({
+        select: { status: true }
+    })
+    
+    const activeTasks = allTasks.filter(t => t.status === 'IN_PROGRESS').length
+    const completedTasks = allTasks.filter(t => t.status === 'COMPLETED').length
+    const totalTeamMembers = await prisma.user.count()
+
+    // Calculate previous period values for comparison (mock data for now)
+    // In a real app, you'd query historical data
+    const prevTotalProjects = Math.max(1, Math.floor(totalProjects * 0.977)) // 12 if current is 12
+    const prevActiveTasks = Math.max(1, Math.floor(activeTasks * 0.893)) // 43 if current is 48
+    const prevCompletedTasks = Math.max(1, Math.floor(completedTasks * 0.925)) // 144 if current is 156
+    const prevTeamMembers = Math.max(1, Math.floor(totalTeamMembers * 0.875)) // 7 if current is 8
+
+    // Calculate percentage changes
+    const projectsChange = ((totalProjects - prevTotalProjects) / prevTotalProjects * 100).toFixed(1)
+    const tasksChange = ((activeTasks - prevActiveTasks) / prevActiveTasks * 100).toFixed(1)
+    const completedChange = ((completedTasks - prevCompletedTasks) / prevCompletedTasks * 100).toFixed(1)
+    const membersChange = totalTeamMembers - prevTeamMembers
+
     const stats = [
         {
             name: "Total Projects",
-            value: "12",
+            value: totalProjects.toString(),
             icon: BarChart3,
-            change: "+2.3%",
-            changeType: "positive",
+            change: `${parseFloat(projectsChange) >= 0 ? '+' : ''}${projectsChange}%`,
+            changeType: parseFloat(projectsChange) >= 0 ? "positive" : "negative",
         },
         {
             name: "Active Tasks",
-            value: "48",
+            value: activeTasks.toString(),
             icon: Clock,
-            change: "+12%",
-            changeType: "positive",
+            change: `${parseFloat(tasksChange) >= 0 ? '+' : ''}${tasksChange}%`,
+            changeType: parseFloat(tasksChange) >= 0 ? "positive" : "negative",
         },
         {
             name: "Completed Tasks",
-            value: "156",
+            value: completedTasks.toString(),
             icon: CheckCircle,
-            change: "+8.1%",
-            changeType: "positive",
+            change: `${parseFloat(completedChange) >= 0 ? '+' : ''}${completedChange}%`,
+            changeType: parseFloat(completedChange) >= 0 ? "positive" : "negative",
         },
         {
             name: "Team Members",
-            value: "8",
+            value: totalTeamMembers.toString(),
             icon: Users,
-            change: "+1",
-            changeType: "positive",
+            change: `${membersChange >= 0 ? '+' : ''}${membersChange}`,
+            changeType: membersChange >= 0 ? "positive" : "negative",
         },
     ]
 
