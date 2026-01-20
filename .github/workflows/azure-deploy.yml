@@ -10,10 +10,6 @@ jobs:
     name: Build and Deploy
     runs-on: ubuntu-latest
     environment: Prod
-    env:
-      ORYX_DISABLE_PLATFORM_DETECTION: true
-      ORYX_PLATFORMS: nodejs
-      ORYX_SKIP_DETECT_PLATFORMS: true
     
     steps:
       - uses: actions/checkout@v4
@@ -45,9 +41,37 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
 
+      - name: Remove unnecessary files for deployment
+        run: |
+          rm -rf .git .github .vscode .next/cache prisma/migrations .env.local *.md
+
+      - name: Create .deployignore to prevent Oryx build
+        run: |
+          cat > .deployignore << 'EOF'
+          .git
+          .github
+          .gitignore
+          node_modules
+          .env.local
+          .env.*.local
+          *.md
+          .vscode
+          .idea
+          *.log
+          coverage
+          .turbo
+          prisma/migrations
+          EOF
+
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: .
+        env:
+          ORYX_DISABLE_PLATFORM_DETECTION: true
+          ORYX_SKIP_DETECT_PLATFORMS: true
+          ORYX_PLATFORMS: nodejs
+          ORYX_PLATFORM_DEFAULT: nodejs
+          SKIP_ORYX_BUILD_DURING_DEPLOYMENT: false
