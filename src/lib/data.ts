@@ -160,7 +160,14 @@ export const getAllTasks = async () => {
  * Get a single task by ID
  */
 export const getTask = async (id: string) => {
-    const task = await prisma.task.findUnique({ where: { id } })
+    const task = await prisma.task.findUnique({
+        where: { id },
+        include: {
+            project: {
+                select: { id: true, name: true }
+            }
+        }
+    })
     if (!task) return null
     return formatTask(task)
 }
