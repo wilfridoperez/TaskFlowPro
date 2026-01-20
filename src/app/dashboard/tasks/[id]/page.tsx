@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import Link from "next/link"
+import { Plus } from "lucide-react"
 import { getAllTasks, getTask } from "@/lib/data"
 import TaskDetailDrawer from "@/components/dashboard/task-detail-drawer"
 import TasksListClient from "@/components/dashboard/tasks-list-client"
@@ -84,5 +86,3 @@ export default async function TaskDetailPage({
         </>
     )
 }
-
-import Link from "next/link"
