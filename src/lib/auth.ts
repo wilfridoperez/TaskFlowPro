@@ -12,8 +12,6 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    trustHost: true,
-    basePath: "/api/auth",
     providers: [
         CredentialsProvider({
             name: "credentials",

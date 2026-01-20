@@ -45,7 +45,7 @@ export default async function TaskDetailPage({
     }
 
     // Fetch all tasks for the background list
-    const allTasks = await getAllTasks(session.user.id, status)
+    const allTasks = await getAllTasks()
 
     return (
         <>
