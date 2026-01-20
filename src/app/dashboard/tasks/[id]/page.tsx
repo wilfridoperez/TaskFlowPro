@@ -78,7 +78,7 @@ export default async function TaskDetailPage({
                     ))}
                 </div>
 
-                <TasksListClient tasks={allTasks} statusColors={statusColors} priorityColors={priorityColors} />
+                <TasksListClient tasks={allTasks} statusColors={statusColors} priorityColors={priorityColors} selectedTaskId={taskId} />
             </div>
 
             {/* Drawer overlay */}

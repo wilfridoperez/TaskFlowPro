@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { Filter, ChevronUp, ChevronDown } from 'lucide-react'
-import TaskDetailModal from './task-detail-modal'
-import { updateTaskById } from '@/lib/actions'
 
 interface Task {
     id: string
@@ -23,18 +22,19 @@ interface TasksListClientProps {
     tasks: Task[]
     statusColors: Record<string, string>
     priorityColors: Record<string, string>
+    selectedTaskId?: string
 }
 
 export default function TasksListClient({ 
     tasks, 
     statusColors, 
-    priorityColors 
+    priorityColors,
+    selectedTaskId
 }: TasksListClientProps) {
+    const router = useRouter()
     const [filterOpen, setFilterOpen] = useState(false)
     const [filterStatus, setFilterStatus] = useState<string>('ALL')
     const [filterPriority, setFilterPriority] = useState<string>('ALL')
-    const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const filteredTasks = useMemo(() => {
         return tasks.filter(task => {
@@ -144,11 +144,12 @@ export default function TasksListClient({
                             {filteredTasks.map((task) => (
                                 <tr 
                                     key={task.id} 
-                                    onClick={() => {
-                                        setSelectedTask(task)
-                                        setIsModalOpen(true)
-                                    }}
-                                    className="hover:bg-blue-50 transition-colors cursor-pointer"
+                                    onClick={() => router.push(`/dashboard/tasks/${task.id}`)}
+                                    className={`cursor-pointer transition-colors ${
+                                        selectedTaskId === task.id
+                                            ? 'bg-blue-100 hover:bg-blue-150'
+                                            : 'hover:bg-blue-50'
+                                    }`}
                                 >
                                     <td className="px-6 py-4">
                                         <div>
@@ -180,27 +181,6 @@ export default function TasksListClient({
                     </table>
                 )}
             </div>
-
-            {/* Task Detail Modal */}
-            {selectedTask && (
-                <TaskDetailModal
-                    task={selectedTask}
-                    allTasks={tasks}
-                    users={[]}
-                    isOpen={isModalOpen}
-                    onClose={() => {
-                        setIsModalOpen(false)
-                        setSelectedTask(null)
-                    }}
-                    onSave={async (updates) => {
-                        try {
-                            await updateTaskById(selectedTask.id, updates)
-                        } catch (error) {
-                            console.error('Error saving task:', error)
-                        }
-                    }}
-                />
-            )}
         </div>
     )
 }
