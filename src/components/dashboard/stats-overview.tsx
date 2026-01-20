@@ -62,22 +62,22 @@ export async function StatsOverview() {
     ]
 
     return (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4">
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
             {stats.map((stat) => (
                 <Link key={stat.name} href={stat.href}>
-                    <div className="relative bg-white pt-2 px-3 pb-4 sm:pt-3 sm:px-4 sm:pb-6 lg:pt-4 lg:px-5 lg:pb-8 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
+                    <div className="relative bg-white pt-2 px-2 pb-3 sm:pt-3 sm:px-3 sm:pb-4 lg:pt-4 lg:px-5 lg:pb-6 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
                         <dt>
-                            <div className="absolute bg-blue-500 rounded-md p-2 sm:p-2.5">
-                                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" aria-hidden="true" />
+                            <div className="absolute bg-blue-500 rounded-md p-1.5 sm:p-2 lg:p-2.5">
+                                <stat.icon className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" aria-hidden="true" />
                             </div>
-                            <p className="ml-12 sm:ml-14 text-xs sm:text-sm font-medium text-gray-700 truncate leading-tight">
+                            <p className="ml-9 sm:ml-11 lg:ml-14 text-xs font-medium text-gray-700 truncate leading-tight">
                                 {stat.name}
                             </p>
                         </dt>
-                        <dd className="ml-12 sm:ml-14 pt-1 flex items-baseline">
-                            <p className="text-lg sm:text-xl font-semibold text-gray-900">{stat.value}</p>
+                        <dd className="ml-9 sm:ml-11 lg:ml-14 pt-0.5 flex items-baseline">
+                            <p className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">{stat.value}</p>
                             <p
-                                className={`ml-2 flex items-baseline text-xs font-semibold ${stat.changeType === "positive"
+                                className={`ml-1 sm:ml-1.5 flex items-baseline text-xs font-semibold ${stat.changeType === "positive"
                                     ? "text-green-600"
                                     : "text-red-600"
                                     }`}
