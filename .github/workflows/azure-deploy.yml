@@ -41,22 +41,9 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
 
-      - name: Remove unnecessary files for deployment
-        run: |
-          rm -rf .git .github .vscode .next/cache prisma/migrations .env.local *.md
-          
-      - name: Stop existing deployment (if any)
-        run: |
-          echo "Removing lock files to prevent deployment conflicts"
-          rm -rf node_modules .next/standalone .next/server
-        continue-on-error: true
-
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: .
-        env:
-          SKIP_ORYX_BUILD_DURING_DEPLOYMENT: true
-          WEBSITE_RUN_FROM_PACKAGE: 1
