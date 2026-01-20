@@ -56,14 +56,8 @@ export default function TaskDetailDrawer({ task, isOpen }: TaskDetailDrawerProps
 
     return (
         <>
-            {/* Backdrop */}
-            <div
-                className="fixed inset-0 bg-gray-900 bg-opacity-40 z-40"
-                onClick={handleClose}
-            />
-
             {/* Drawer */}
-            <div className="fixed right-0 top-0 bottom-0 w-full sm:w-[500px] bg-white shadow-2xl z-50 overflow-y-auto">
+            <div className="fixed right-0 top-0 bottom-0 w-full sm:w-[500px] bg-white shadow-2xl z-50 overflow-y-auto border-l border-gray-200">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
                     <h2 className="text-2xl font-bold text-gray-900">Task Details</h2>
