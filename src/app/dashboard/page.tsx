@@ -47,13 +47,13 @@ export default async function DashboardPage() {
             </div>
 
             {/* Main Content */}
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-                <div className="space-y-8">
+            <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+                <div className="space-y-4 sm:space-y-6 lg:space-y-8">
                     {/* Stats Overview */}
                     <StatsOverview />
 
                     {/* Projects and Recent Tasks */}
-                    <div className="grid lg:grid-cols-2 gap-8">
+                    <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                         <ProjectGrid />
                         <RecentTasks />
                     </div>

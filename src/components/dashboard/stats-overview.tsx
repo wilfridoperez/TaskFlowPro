@@ -62,22 +62,22 @@ export async function StatsOverview() {
     ]
 
     return (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
             {stats.map((stat) => (
                 <Link key={stat.name} href={stat.href}>
-                    <div className="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
+                    <div className="relative bg-white pt-3 px-3 pb-8 sm:pt-4 sm:px-4 sm:pb-10 lg:pt-5 lg:px-6 lg:pb-12 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
                         <dt>
-                            <div className="absolute bg-blue-500 rounded-md p-3">
-                                <stat.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                            <div className="absolute bg-blue-500 rounded-md p-2 sm:p-3">
+                                <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" aria-hidden="true" />
                             </div>
-                            <p className="ml-16 text-sm font-medium text-gray-700 truncate">
+                            <p className="ml-14 sm:ml-16 text-xs sm:text-sm font-medium text-gray-700 truncate">
                                 {stat.name}
                             </p>
                         </dt>
-                        <dd className="ml-16 pb-6 flex items-baseline sm:pb-7">
-                            <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
+                        <dd className="ml-14 sm:ml-16 pb-4 sm:pb-6 flex items-baseline sm:pb-7">
+                            <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stat.value}</p>
                             <p
-                                className={`ml-2 flex items-baseline text-sm font-semibold ${stat.changeType === "positive"
+                                className={`ml-2 flex items-baseline text-xs sm:text-sm font-semibold ${stat.changeType === "positive"
                                     ? "text-green-600"
                                     : "text-red-600"
                                     }`}
