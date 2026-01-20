@@ -44,24 +44,12 @@ jobs:
       - name: Remove unnecessary files for deployment
         run: |
           rm -rf .git .github .vscode .next/cache prisma/migrations .env.local *.md
-
-      - name: Create .deployignore to prevent Oryx build
+          
+      - name: Stop existing deployment (if any)
         run: |
-          cat > .deployignore << 'EOF'
-          .git
-          .github
-          .gitignore
-          node_modules
-          .env.local
-          .env.*.local
-          *.md
-          .vscode
-          .idea
-          *.log
-          coverage
-          .turbo
-          prisma/migrations
-          EOF
+          echo "Removing lock files to prevent deployment conflicts"
+          rm -rf node_modules .next/standalone .next/server
+        continue-on-error: true
 
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
@@ -70,8 +58,5 @@ jobs:
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: .
         env:
-          ORYX_DISABLE_PLATFORM_DETECTION: true
-          ORYX_SKIP_DETECT_PLATFORMS: true
-          ORYX_PLATFORMS: nodejs
-          ORYX_PLATFORM_DEFAULT: nodejs
-          SKIP_ORYX_BUILD_DURING_DEPLOYMENT: false
+          SKIP_ORYX_BUILD_DURING_DEPLOYMENT: true
+          WEBSITE_RUN_FROM_PACKAGE: 1
