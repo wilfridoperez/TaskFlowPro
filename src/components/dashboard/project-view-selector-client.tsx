@@ -21,7 +21,7 @@ interface ProjectViewSelectorClientProps {
 }
 
 export default function ProjectViewSelectorClient({ projects }: ProjectViewSelectorClientProps) {
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
     const [filterOpen, setFilterOpen] = useState(false)
     const [filterStatus, setFilterStatus] = useState<string>('ALL')
     const [filterMinBudget, setFilterMinBudget] = useState<string>('')
