@@ -2,7 +2,6 @@
 .github
 .gitignore
 .next/cache
-node_modules
 .env.local
 .env.*.local
 *.md
@@ -12,3 +11,4 @@ node_modules
 *.log
 coverage
 .turbo
+scripts/
