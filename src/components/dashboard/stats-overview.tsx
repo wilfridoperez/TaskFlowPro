@@ -62,22 +62,22 @@ export async function StatsOverview() {
     ]
 
     return (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4">
             {stats.map((stat) => (
                 <Link key={stat.name} href={stat.href}>
-                    <div className="relative bg-white pt-3 px-3 pb-8 sm:pt-4 sm:px-4 sm:pb-10 lg:pt-5 lg:px-6 lg:pb-12 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
+                    <div className="relative bg-white pt-2 px-3 pb-4 sm:pt-3 sm:px-4 sm:pb-6 lg:pt-4 lg:px-5 lg:pb-8 shadow rounded-lg overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer h-full">
                         <dt>
-                            <div className="absolute bg-blue-500 rounded-md p-2 sm:p-3">
-                                <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" aria-hidden="true" />
+                            <div className="absolute bg-blue-500 rounded-md p-2 sm:p-2.5">
+                                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" aria-hidden="true" />
                             </div>
-                            <p className="ml-14 sm:ml-16 text-xs sm:text-sm font-medium text-gray-700 truncate">
+                            <p className="ml-12 sm:ml-14 text-xs sm:text-sm font-medium text-gray-700 truncate leading-tight">
                                 {stat.name}
                             </p>
                         </dt>
-                        <dd className="ml-14 sm:ml-16 pb-4 sm:pb-6 flex items-baseline sm:pb-7">
-                            <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stat.value}</p>
+                        <dd className="ml-12 sm:ml-14 pt-1 flex items-baseline">
+                            <p className="text-lg sm:text-xl font-semibold text-gray-900">{stat.value}</p>
                             <p
-                                className={`ml-2 flex items-baseline text-xs sm:text-sm font-semibold ${stat.changeType === "positive"
+                                className={`ml-2 flex items-baseline text-xs font-semibold ${stat.changeType === "positive"
                                     ? "text-green-600"
                                     : "text-red-600"
                                     }`}
