@@ -9,6 +9,7 @@ const statusIcons = {
     IN_PROGRESS: Eye,
     IN_REVIEW: Eye,
     DONE: Eye,
+    CANCELLED: Eye,
 }
 
 const priorityColors = {
@@ -97,7 +98,9 @@ export default function TaskItem({ task }: TaskItemProps) {
                                 ? "bg-blue-100 text-blue-800"
                                 : task.status === "IN_REVIEW"
                                     ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-gray-100 text-gray-800"
+                                    : task.status === "CANCELLED"
+                                        ? "bg-red-100 text-red-800"
+                                        : "bg-gray-100 text-gray-800"
                         }`}>
                         {task.status.replace("_", " ")}
                     </span>
