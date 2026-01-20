@@ -12,6 +12,8 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    trustHost: true,
+    basePath: "/api/auth",
     providers: [
         CredentialsProvider({
             name: "credentials",
@@ -82,10 +84,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return token
         }
     },
-    pages: {
-        signIn: "/auth/signin",
-    },
     trustHost: true,
+    basePath: "/api/auth",
     secret: process.env.NEXTAUTH_SECRET,
     experimental: {
         enableWebAuthn: false,
