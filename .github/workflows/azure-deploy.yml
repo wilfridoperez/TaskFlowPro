@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
       
+      - name: Install dependencies (production for Azure)
+        run: npm ci --production --legacy-peer-deps
+      
       - name: Create .env.production for build
         run: |
           cat > .env.production << 'EOF'
