@@ -1,3 +1,3 @@
 [config]
-command = npm start
-SCM_DO_BUILD_DURING_DEPLOYMENT = true
+command = npm install --legacy-peer-deps && npm run build && npm start
+SCM_DO_BUILD_DURING_DEPLOYMENT = false
