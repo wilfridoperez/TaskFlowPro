@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24-lts'
           cache: 'npm'
           cache-dependency-path: package-lock.json
       
@@ -28,6 +28,17 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+      
+      - name: Create .env.production for deployment
+        run: |
+          cat > .env.production << 'EOF'
+          NODE_ENV=production
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_PUBLIC_KEY }}
+          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          EOF
       
       - name: Run database migrations
         run: npx prisma migrate deploy
@@ -40,9 +51,9 @@ jobs:
           cp -r .next ./deploy/
           cp -r node_modules ./deploy/
           cp -r public ./deploy/
-          cp -r src ./deploy/
           cp -r prisma ./deploy/
-          cp package.json package-lock.json next.config.ts tsconfig.json ./deploy/
+          cp .env.production ./deploy/
+          cp package.json package-lock.json next.config.ts tsconfig.json web.config ./deploy/
           cd ./deploy && zip -r ../deploy.zip .
 
       - name: Deploy to Azure
