@@ -53,16 +53,6 @@ jobs:
           cp -r prisma ./deploy/
           cp .env.production ./deploy/
           cp package.json package-lock.json next.config.ts tsconfig.json web.config ./deploy/
-          
-          # Create startup script for Azure
-          cat > ./deploy/startup.sh << 'STARTUP_EOF'
-          #!/bin/bash
-          cd /home/site/wwwroot
-          npm ci --legacy-peer-deps --production
-          npm start
-          STARTUP_EOF
-          chmod +x ./deploy/startup.sh
-          
           cd ./deploy && zip -r ../deploy.zip .
 
       - name: Deploy to Azure
