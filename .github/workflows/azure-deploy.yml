@@ -35,6 +35,9 @@ jobs:
           STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
           EOF
       
+      - name: Clear Next.js cache
+        run: rm -rf .next
+      
       - name: Build Next.js application
         run: npm run build
         env:
