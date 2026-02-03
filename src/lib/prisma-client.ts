@@ -20,8 +20,17 @@ export function getPrismaClient(): any {
                 log: [],
                 errorFormat: 'pretty',
             })
-            // Connect asynchronously without blocking
-            prismaClient.$connect()
+            // Connect asynchronously without blocking, with timeout
+            const connectPromise = prismaClient.$connect()
+            
+            // Set a timeout - if connection takes more than 5 seconds, use fallback
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Connection timeout after 5 seconds'))
+                }, 5000)
+            })
+            
+            Promise.race([connectPromise, timeoutPromise])
                 .then(() => {
                     console.log('[Prisma] Connected successfully')
                     usingFallback = false
