@@ -1,8 +1,8 @@
 name: Deploy to Azure
 
 on:
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -43,21 +43,16 @@ jobs:
         env:
           NODE_ENV: production
       
-      - name: Run database migrations
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      
       - name: Create deployment package
         run: |
           mkdir -p ./deploy
           cp -r .next ./deploy/
           cp -r public ./deploy/
           cp -r prisma ./deploy/
-          cp .env.production ./deploy/
-          cp package.json package-lock.json next.config.ts tsconfig.json web.config ./deploy/
+          cp -r .azure ./deploy/
+          cp package.json package-lock.json next.config.ts tsconfig.json .deployment ./deploy/
           cd ./deploy && zip -r ../deploy.zip .
-
+      
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
