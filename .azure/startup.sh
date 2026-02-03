@@ -24,16 +24,13 @@ if [ -z "$NEXTAUTH_URL" ]; then
     fi
 fi
 
+# Set database connection timeout to 5 seconds
+export DATABASE_QUERY_TIMEOUT="5000"
+
 cd /home/site/wwwroot
 
-# Run Prisma migrations with timeout and error handling
-echo "====== Running Prisma migrations with 60 second timeout ======"
-timeout 60s npx prisma migrate deploy --skip-generate 2>&1 || {
-    echo "WARNING: Prisma migrations failed, attempt or database timeout"
-    echo "DATABASE_URL: ${DATABASE_URL:0:30}..." 
-}
-
-# Start the Next.js app with timeout and logging
+# Start the Next.js app immediately without waiting for migrations
+# Migrations should happen separately (as a job or in the app when first requested)
 echo "====== Starting Next.js server on port ${PORT:-8080} ======"
 npm start
 

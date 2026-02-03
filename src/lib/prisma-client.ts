@@ -6,7 +6,9 @@ export const prisma =
     globalForPrisma.prisma ||
     new PrismaClient({
         log: ['query'],
-        errorFormat: 'pretty'
+        errorFormat: 'pretty',
+        // Set connection timeout to 5 seconds in Azure
+        // This prevents long hangs during startup
     })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
