@@ -6,6 +6,7 @@ declare global {
 }
 
 let prismaClient: PrismaClient | null = null
+let initPromise: Promise<PrismaClient> | null = null
 
 // Lazy initialize Prisma client only when actually needed
 export function getPrismaClient(): PrismaClient {
@@ -13,19 +14,22 @@ export function getPrismaClient(): PrismaClient {
         console.log('Initializing Prisma client...')
         try {
             prismaClient = new PrismaClient({
-                log: ['query'],
+                log: [],
                 errorFormat: 'pretty',
+            })
+            // Don't wait for connection - let it happen asynchronously
+            prismaClient.$connect().catch(err => {
+                console.error('Prisma connection error (will retry on query):', err.message)
             })
         } catch (error) {
             console.error('Failed to initialize Prisma client:', error)
-            // Return a stub that won't crash the app
             throw error
         }
     }
     return prismaClient
 }
 
-// For backwards compatibility
+// Backward compatibility - return proxy that initializes on first use
 export const prisma = new Proxy({} as PrismaClient, {
     get: (target, prop) => {
         const client = getPrismaClient()
