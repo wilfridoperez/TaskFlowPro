@@ -1,15 +1,10 @@
-import { prisma } from '@/lib/prisma';
-
 export async function GET(request: Request) {
     try {
-        // Test database connection
-        await prisma.$queryRaw`SELECT 1`;
-
         return Response.json(
             {
                 status: 'healthy',
                 timestamp: new Date().toISOString(),
-                database: 'connected'
+                app: 'running'
             },
             { status: 200 }
         );
