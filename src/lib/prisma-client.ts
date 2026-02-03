@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { createPrismaFallback } from './prisma-fallback'
 
 // Global instance to avoid multiple connections
 declare global {
@@ -6,11 +7,13 @@ declare global {
 }
 
 let prismaClient: PrismaClient | null = null
+let fallbackClient: any = null
 let connectionError: Error | null = null
+let usingFallback = false
 
 // Lazy initialize Prisma client only when actually needed
-export function getPrismaClient(): PrismaClient {
-    if (!prismaClient) {
+export function getPrismaClient(): any {
+    if (!prismaClient && !fallbackClient) {
         console.log('[Prisma] Initializing client (async)...')
         try {
             prismaClient = new PrismaClient({
@@ -19,32 +22,32 @@ export function getPrismaClient(): PrismaClient {
             })
             // Connect asynchronously without blocking
             prismaClient.$connect()
-                .then(() => console.log('[Prisma] Connected successfully'))
+                .then(() => {
+                    console.log('[Prisma] Connected successfully')
+                    usingFallback = false
+                })
                 .catch(err => {
                     connectionError = err
-                    console.error('[Prisma] Connection failed (will retry on query):', err.message)
+                    console.error('[Prisma] Connection failed, using fallback data:', err.message)
+                    prismaClient = null
+                    fallbackClient = createPrismaFallback()
+                    usingFallback = true
                 })
         } catch (error) {
             connectionError = error as Error
-            console.error('[Prisma] Failed to create client:', error)
+            console.error('[Prisma] Failed to create client, using fallback:', error)
+            fallbackClient = createPrismaFallback()
+            usingFallback = true
             // Don't throw - allow app to continue
         }
     }
-    return prismaClient!
-}
-
-// Safe wrapper that returns null if database is unavailable
-export function getPrismaClientSafe() {
-    try {
-        return getPrismaClient()
-    } catch (error) {
-        console.error('[Prisma] Error getting client:', error)
-        return null
-    }
+    
+    // Return whichever client is available (real or fallback)
+    return prismaClient || fallbackClient || createPrismaFallback()
 }
 
 // For backwards compatibility - return proxy that initializes on first use
-export const prisma = new Proxy({} as PrismaClient, {
+export const prisma = new Proxy({} as any, {
     get: (target, prop) => {
         const client = getPrismaClient()
         return (client as any)[prop]
