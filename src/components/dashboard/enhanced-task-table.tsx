@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, AlertCircle, Link2, Edit2 } from 'lucide-react'
 
+type SortField = 'title' | 'priority' | 'startDate' | 'dueDate' | 'status' | 'assignedTo'
+
 interface Task {
     id: string
     title: string
@@ -26,9 +28,9 @@ interface User {
 interface EnhancedTaskTableProps {
     tasks: Task[]
     users: User[]
-    sortField: string
+    sortField: SortField
     sortOrder: 'asc' | 'desc'
-    onToggleSort: (field: string) => void
+    onToggleSort: (field: SortField) => void
     onStatusChange: (taskId: string, newStatus: string) => Promise<void>
     onEditTask: (task: Task) => void
 }
