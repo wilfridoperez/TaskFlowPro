@@ -13,7 +13,7 @@ export default async function UsersPage() {
     const usersData = await getUsers()
 
     // Map database users to UI format
-    const users = usersData.map(user => ({
+    const users = usersData.map((user: any) => ({
         id: user.id,
         name: user.name || 'User',
         email: user.email,

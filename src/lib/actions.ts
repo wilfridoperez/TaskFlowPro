@@ -492,10 +492,9 @@ export const saveAllocations = async (projectId: string, allocations: Record<num
         await prisma.allocation.deleteMany({
             where: { projectId }
         })
-
         // Create new allocations
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        const newAllocations = []
+        const newAllocations: any[] = []
 
         for (let memberIndex = 0; memberIndex < teamMembers.length; memberIndex++) {
             const teamMember = teamMembers[memberIndex]

@@ -41,7 +41,7 @@ export function getPrismaClient(): any {
             // Don't throw - allow app to continue
         }
     }
-    
+
     // Return whichever client is available (real or fallback)
     return prismaClient || fallbackClient || createPrismaFallback()
 }

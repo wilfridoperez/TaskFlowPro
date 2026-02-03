@@ -33,7 +33,7 @@ export async function RecentTasks() {
                             <p className="text-gray-500">No tasks yet. <Link href="/dashboard/tasks/new" className="text-blue-600 hover:text-blue-700">Create one</Link></p>
                         </li>
                     ) : (
-                        tasks.map((task) => (
+                        tasks.map((task: any) => (
                             <TaskItem key={task.id} task={task} />
                         ))
                     )}
