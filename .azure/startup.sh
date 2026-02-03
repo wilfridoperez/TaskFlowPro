@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # Startup script for Azure App Service
-# Build and start the Next.js app
+# Start the Next.js app (build should have already happened during deployment)
 
 echo "====== STARTUP SCRIPT STARTING ======"
 echo "Current directory: $(pwd)"
-echo "Current user: $(whoami)"
 
 # Dynamically set NEXTAUTH_URL based on the app's actual URL
 if [ -z "$NEXTAUTH_URL" ]; then
@@ -15,24 +14,14 @@ if [ -z "$NEXTAUTH_URL" ]; then
     fi
 fi
 
-echo "Changing to /home/site/wwwroot..."
 cd /home/site/wwwroot
 
-# Check if npm is available
-echo "npm version: $(npm --version)"
-echo "node version: $(node --version)"
-
-# Build the Next.js app if not already built
+# Check if .next build exists
 if [ ! -d ".next" ]; then
-    echo "====== Building Next.js application ======"
-    npm run build 2>&1
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Build failed!"
-        exit 1
-    fi
-else
-    echo ".next build directory found, skipping build"
+    echo "WARNING: .next build directory not found"
+    echo "Directory contents:"
+    ls -la | head -20
 fi
 
 echo "====== Starting Next.js server on port ${PORT:-8080} ======"
-node_modules/.bin/next start --port ${PORT:-8080} 2>&1
+node_modules/.bin/next start --port ${PORT:-8080}
