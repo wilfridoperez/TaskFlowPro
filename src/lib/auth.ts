@@ -1,5 +1,4 @@
 import NextAuth, { type DefaultSession } from "next-auth"
-import { prisma } from "@/lib/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 
@@ -8,6 +7,17 @@ declare module "next-auth" {
         user: {
             id: string
         } & DefaultSession["user"]
+    }
+}
+
+// Lazy import prisma to avoid connection blocking during app startup
+async function getPrisma() {
+    try {
+        const { prisma } = await import("@/lib/prisma-client")
+        return prisma
+    } catch (error) {
+        console.error("[Auth] Failed to load Prisma:", error)
+        return null
     }
 }
 
@@ -26,6 +36,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 try {
+                    const prisma = await getPrisma()
+                    if (!prisma) {
+                        console.log("Database not available")
+                        return null
+                    }
+
                     const user = await prisma.user.findUnique({
                         where: { email: credentials.email as string }
                     })
