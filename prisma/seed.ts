@@ -1,9 +1,13 @@
 import { prisma } from '../src/lib/prisma-client'
+import bcrypt from 'bcryptjs'
 
 async function seed() {
     console.log('🌱 Starting database seed...')
 
     try {
+        // Hash password for test user
+        const hashedPassword = await bcrypt.hash('password123', 10)
+
         // Create test user
         const user = await prisma.user.upsert({
             where: { email: 'test@test.com' },
@@ -12,10 +16,11 @@ async function seed() {
                 id: 'cmjumwv2d00001ejv52lmcypd',
                 name: 'Test User',
                 email: 'test@test.com',
+                password: hashedPassword,
                 image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test',
             },
         })
-        console.log('✓ Created test user:', user.email)
+        console.log('✓ Created test user:', user.email, '(Password: password123)')
 
         // Create sample projects
         const project1 = await prisma.project.upsert({

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Grid3X3, List, Edit2, Filter, ChevronUp, ChevronDown } from 'lucide-react'
+import { Grid3X3, List, Edit2, Filter, ChevronUp, ChevronDown, Users } from 'lucide-react'
 import Link from 'next/link'
 import ProjectDetailModal from './project-detail-modal'
 
@@ -123,14 +123,23 @@ export default function ProjectViewSelectorClient({ projects }: ProjectViewSelec
                         </div>
                     </div>
 
-                    {/* Edit Button */}
-                    <button
-                        onClick={() => setSelectedProject(project)}
-                        className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors font-medium"
-                    >
-                        <Edit2 className="w-4 h-4" />
-                        Edit
-                    </button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setSelectedProject(project)}
+                            className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors font-medium"
+                        >
+                            <Edit2 className="w-4 h-4" />
+                            Edit
+                        </button>
+                        <a
+                            href={`/dashboard/projects/${project.id}/allocations`}
+                            className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                        >
+                            <Users className="w-4 h-4" />
+                            Allocations
+                        </a>
+                    </div>
                 </div>
             </div>
         )

@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { ChevronUp, ChevronDown, AlertCircle, Link2, Edit2, CheckCircle, Filter, X } from 'lucide-react'
 import TaskDetailModal from './task-detail-modal'
+import EnhancedTaskTable from './enhanced-task-table'
 import { updateTaskById } from '@/lib/actions'
 
 interface Task {
@@ -276,178 +277,19 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
                 Showing {sorted.length} of {tasks.length} tasks
             </p>
 
-            {/* Task Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b border-gray-200">
-                            <th className="text-left py-3 px-4">
-                                <button
-                                    onClick={() => toggleSort('title')}
-                                    className="flex items-center gap-2 hover:text-blue-600"
-                                >
-                                    Title
-                                    <SortIcon field="title" />
-                                </button>
-                            </th>
-                            <th className="text-left py-3 px-4">
-                                <button
-                                    onClick={() => toggleSort('assignedTo')}
-                                    className="flex items-center gap-2 hover:text-blue-600"
-                                >
-                                    Assigned To
-                                    <SortIcon field="assignedTo" />
-                                </button>
-                            </th>
-                            <th className="text-left py-3 px-4">
-                                <button
-                                    onClick={() => toggleSort('priority')}
-                                    className="flex items-center gap-2 hover:text-blue-600"
-                                >
-                                    Priority
-                                    <SortIcon field="priority" />
-                                </button>
-                            </th>
-                            <th className="text-left py-3 px-4">
-                                <button
-                                    onClick={() => toggleSort('startDate')}
-                                    className="flex items-center gap-2 hover:text-blue-600"
-                                >
-                                    Start Date
-                                    <SortIcon field="startDate" />
-                                </button>
-                            </th>
-                            <th className="text-left py-3 px-4">
-                                <button
-                                    onClick={() => toggleSort('dueDate')}
-                                    className="flex items-center gap-2 hover:text-blue-600"
-                                >
-                                    Due Date
-                                    <SortIcon field="dueDate" />
-                                </button>
-                            </th>
-                            <th className="text-left py-3 px-4">
-                                <button
-                                    onClick={() => toggleSort('status')}
-                                    className="flex items-center gap-2 hover:text-blue-600"
-                                >
-                                    Status
-                                    <SortIcon field="status" />
-                                </button>
-                            </th>
-                            <th className="text-left py-3 px-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sorted.map(task => {
-                            const displayTask = getDisplayTask(task.id)
-                            const depStatus = getDependencyStatus(displayTask)
-                            const isExpanded = expandedDeps.has(task.id)
-                            const dependencies = displayTask?.dependsOn?.map(depId => getDisplayTask(depId)).filter(Boolean) || []
-
-                            return (
-                                <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                    <td className="py-3 px-4">
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <p className="font-medium text-gray-900">{displayTask?.title}</p>
-                                                {depStatus === 'blocked' && (
-                                                    <div title="Blocked by dependencies">
-                                                        <AlertCircle className="w-4 h-4 text-orange-500" />
-                                                    </div>
-                                                )}
-                                                {depStatus === 'ready' && (
-                                                    <div className="w-2 h-2 rounded-full bg-green-500" title="Ready to start" />
-                                                )}
-                                            </div>
-                                            {displayTask?.description && (
-                                                <p className="text-sm text-gray-600 mt-1">{displayTask.description}</p>
-                                            )}
-                                            {dependencies.length > 0 && (
-                                                <div className="mt-2">
-                                                    <button
-                                                        onClick={() => setExpandedDeps(new Set(isExpanded ? [...expandedDeps].filter(id => id !== task.id) : [...expandedDeps, task.id]))}
-                                                        className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                                                    >
-                                                        <Link2 className="w-3 h-3" />
-                                                        {dependencies.length} dependenc{dependencies.length === 1 ? 'y' : 'ies'}
-                                                    </button>
-                                                    {isExpanded && (
-                                                        <div className="mt-2 ml-4 text-xs space-y-1 border-l-2 border-blue-300 pl-3">
-                                                            {dependencies.map(dep => (
-                                                                <div key={dep?.id} className="text-gray-600">
-                                                                    <span className={`inline-block px-2 py-0.5 rounded ${dep?.status === 'DONE' ? 'bg-green-100 text-green-800' :
-                                                                        dep?.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                                                                            'bg-gray-100 text-gray-800'
-                                                                        }`}>
-                                                                        {(dep?.status || 'TODO').replace('_', ' ').toLowerCase()}
-                                                                    </span>
-                                                                    {' '}{dep?.title}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-700">
-                                                {users.find(u => u.id === displayTask?.assignedTo)?.avatar || '?'}
-                                            </div>
-                                            <span className="text-sm text-gray-700">{getUserName(displayTask?.assignedTo || '')}</span>
-                                        </div>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${displayTask?.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
-                                            displayTask?.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-green-100 text-green-800'
-                                            }`}>
-                                            {(displayTask?.priority || 'MEDIUM').toLowerCase()}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600">
-                                        {displayTask?.startDate ? new Date(displayTask.startDate).toLocaleDateString() : '—'}
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600">
-                                        {displayTask?.dueDate ? new Date(displayTask.dueDate).toLocaleDateString() : '—'}
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <select
-                                            value={displayTask?.status || 'TODO'}
-                                            onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                                            className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${displayTask?.status === 'DONE' ? 'bg-green-100 text-green-800' :
-                                                displayTask?.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                                                    'bg-gray-100 text-gray-800'
-                                                }`}
-                                        >
-                                            <option value="TODO">To Do</option>
-                                            <option value="IN_PROGRESS">In Progress</option>
-                                            <option value="DONE">Done</option>
-                                        </select>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <button
-                                            onClick={() => setSelectedTask(task)}
-                                            className="inline-flex items-center gap-1 px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm"
-                                        >
-                                            <Edit2 className="w-3 h-3" />
-                                            Edit
-                                        </button>
-                                    </td>
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </table>
-            </div>
-
-            {sorted.length === 0 && (
-                <div className="text-center py-8">
-                    <p className="text-gray-600">No tasks match your filters.</p>
-                </div>
-            )}
+            {/* Enhanced Task Table */}
+            <EnhancedTaskTable
+                tasks={sorted.map(task => {
+                    const displayTask = getDisplayTask(task.id)
+                    return displayTask || task
+                })}
+                users={users}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onToggleSort={toggleSort}
+                onStatusChange={handleStatusChange}
+                onEditTask={setSelectedTask}
+            />
 
             {selectedTask && (
                 <TaskDetailModal

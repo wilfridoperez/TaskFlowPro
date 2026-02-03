@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from "next/link"
-import { Calendar, Users, MoreVertical, Edit2, Trash2, Eye } from "lucide-react"
+import { Calendar, Users, MoreVertical, Edit2, Trash2, Eye, UserCheck } from "lucide-react"
 import { deleteProject } from "@/lib/actions"
 
 interface ProjectGridItemProps {
@@ -17,11 +17,41 @@ export default function ProjectGridItem({ project }: ProjectGridItemProps) {
     const totalTasks = project.tasks?.length || 0
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'ACTIVE':
+                return 'bg-green-100 text-green-800'
+            case 'COMPLETED':
+                return 'bg-blue-100 text-blue-800'
+            case 'ON_HOLD':
+                return 'bg-yellow-100 text-yellow-800'
+            case 'CANCELLED':
+                return 'bg-red-100 text-red-800'
+            default:
+                return 'bg-gray-100 text-gray-800'
+        }
+    }
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'ACTIVE':
+                return 'Active'
+            case 'COMPLETED':
+                return 'Completed'
+            case 'ON_HOLD':
+                return 'On Hold'
+            case 'CANCELLED':
+                return 'Cancelled'
+            default:
+                return status
+        }
+    }
+
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone.`)) {
             return
         }
-        
+
         setIsDeleting(true)
         try {
             await deleteProject(project.id)
@@ -38,63 +68,76 @@ export default function ProjectGridItem({ project }: ProjectGridItemProps) {
         <li key={project.id} className="px-4 py-4 sm:px-6 relative">
             <div className="flex items-center justify-between">
                 <div className="flex-1">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-medium text-blue-600 hover:text-blue-500">
                             <Link href={`/dashboard/projects/${project.id}`}>
                                 {project.name}
                             </Link>
                         </h4>
-                        <div className="relative">
-                            <button 
-                                onClick={() => setShowMenu(!showMenu)}
-                                className="text-gray-400 hover:text-gray-500 p-1 rounded hover:bg-gray-100"
-                            >
-                                <MoreVertical className="h-5 w-5" />
-                            </button>
+                        <div className="flex items-center gap-3">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                                {getStatusLabel(project.status)}
+                            </span>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowMenu(!showMenu)}
+                                    className="text-gray-400 hover:text-gray-500 p-1 rounded hover:bg-gray-100"
+                                >
+                                    <MoreVertical className="h-5 w-5" />
+                                </button>
 
-                            {/* Dropdown Menu */}
-                            {showMenu && (
-                                <>
-                                    {/* Overlay to close menu */}
-                                    <div 
-                                        className="fixed inset-0 z-30"
-                                        onClick={() => setShowMenu(false)}
-                                    />
-                                    
-                                    {/* Menu */}
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-40 border border-gray-200">
-                                        <Link
-                                            href={`/dashboard/projects/${project.id}`}
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b border-gray-100"
+                                {/* Dropdown Menu */}
+                                {showMenu && (
+                                    <>
+                                        {/* Overlay to close menu */}
+                                        <div
+                                            className="fixed inset-0 z-30"
                                             onClick={() => setShowMenu(false)}
-                                        >
-                                            <Eye className="w-4 h-4 mr-3" />
-                                            View Details
-                                        </Link>
-                                        <button
-                                            onClick={() => {
-                                                setShowMenu(false)
-                                                window.location.href = `/dashboard/projects/${project.id}`
-                                            }}
-                                            className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100"
-                                        >
-                                            <Edit2 className="w-4 h-4 mr-3" />
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setShowMenu(false)
-                                                handleDelete()
-                                            }}
-                                            disabled={isDeleting}
-                                            className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg disabled:opacity-50"
-                                        >
-                                            <Trash2 className="w-4 h-4 mr-3" />
-                                            {isDeleting ? 'Deleting...' : 'Delete'}
-                                        </button>
-                                    </div>
-                                </>
-                            )}
+                                        />
+
+                                        {/* Menu */}
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-40 border border-gray-200">
+                                            <Link
+                                                href={`/dashboard/projects/${project.id}`}
+                                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg border-b border-gray-100"
+                                                onClick={() => setShowMenu(false)}
+                                            >
+                                                <Eye className="w-4 h-4 mr-3" />
+                                                View Details
+                                            </Link>
+                                            <Link
+                                                href={`/dashboard/projects/${project.id}/allocations`}
+                                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100"
+                                                onClick={() => setShowMenu(false)}
+                                            >
+                                                <UserCheck className="w-4 h-4 mr-3" />
+                                                Allocations
+                                            </Link>
+                                            <button
+                                                onClick={() => {
+                                                    setShowMenu(false)
+                                                    window.location.href = `/dashboard/projects/${project.id}`
+                                                }}
+                                                className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100"
+                                            >
+                                                <Edit2 className="w-4 h-4 mr-3" />
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setShowMenu(false)
+                                                    handleDelete()
+                                                }}
+                                                disabled={isDeleting}
+                                                className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg disabled:opacity-50"
+                                            >
+                                                <Trash2 className="w-4 h-4 mr-3" />
+                                                {isDeleting ? 'Deleting...' : 'Delete'}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
@@ -104,7 +147,12 @@ export default function ProjectGridItem({ project }: ProjectGridItemProps) {
                         <Calendar className="flex-shrink-0 mr-1.5 h-4 w-4" />
                         <span className="mr-4">Due {project.endDate?.toLocaleDateString() || 'N/A'}</span>
                         <Users className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                        <span>{project.teamMembers?.length || 0} members</span>
+                        <Link
+                            href={`/dashboard/projects/${project.id}/allocations`}
+                            className="text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                            {project.teamMembers?.length || 0} members
+                        </Link>
                     </div>
                     <div className="mt-3">
                         <div className="flex justify-between text-xs text-gray-600 mb-1">

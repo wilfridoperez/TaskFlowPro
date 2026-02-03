@@ -91,6 +91,7 @@ model Project {
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   tasks       Task[]
   teamMembers TeamMember[]
+  allocations Allocation[]
 }
 
 model Task {
@@ -121,8 +122,23 @@ model TeamMember {
   userId    String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  allocations Allocation[]
 
   @@unique([projectId, userId])
+}
+
+model Allocation {
+  id              String   @id @default(cuid())
+  projectId       String
+  teamMemberId    String
+  month           String   // e.g., "Jan", "Feb", etc.
+  percentage      Float    // Allocation percentage (0-100)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamMember      TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, teamMemberId, month])
 }
 
 enum UserRole {

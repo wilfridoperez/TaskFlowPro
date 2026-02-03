@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { ArrowLeft, Clock } from "lucide-react"
+import { ArrowLeft, Clock, Users } from "lucide-react"
 import Link from "next/link"
 import { getProject, getUsers } from "@/lib/data"
 import ProjectHeaderClient from "@/components/dashboard/project-header-client"
@@ -58,10 +58,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
-                <div className="mb-6 flex items-center">
+                <div className="mb-6 flex items-center justify-between">
                     <Link href="/dashboard" className="flex items-center text-blue-600 hover:text-blue-800">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Dashboard
+                    </Link>
+                    <Link
+                        href={`/dashboard/projects/${projectId}/allocations`}
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                        <Users className="w-4 h-4" />
+                        View Allocations
                     </Link>
                 </div>
 
@@ -73,30 +80,32 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 />
 
                 {/* Tasks Section with View Selector */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between mb-6 pb-0">
-                        <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
+                <div className="bg-white rounded-lg shadow-sm mt-4">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                        <h2 className="text-base font-semibold text-gray-900">Tasks</h2>
                         <Link
                             href={`/dashboard/tasks/new?projectId=${projectId}`}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            className="bg-blue-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             Add Task
                         </Link>
                     </div>
 
                     {safeProject.tasks.length === 0 ? (
-                        <div className="text-center py-8">
-                            <Clock className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-                            <p className="text-gray-600">Get started by adding your first task to this project.</p>
+                        <div className="text-center py-6">
+                            <Clock className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                            <h3 className="text-sm font-medium text-gray-900">No tasks yet</h3>
+                            <p className="text-xs text-gray-500 mt-1">Add your first task to get started</p>
                         </div>
                     ) : (
-                        <ProjectViewSelector
-                            tasks={safeProject.tasks as any}
-                            users={await getUsers()}
-                            projectStartDate={safeProject.startDate}
-                            projectEndDate={safeProject.endDate}
-                        />
+                        <div className="p-4">
+                            <ProjectViewSelector
+                                tasks={safeProject.tasks as any}
+                                users={await getUsers()}
+                                projectStartDate={safeProject.startDate}
+                                projectEndDate={safeProject.endDate}
+                            />
+                        </div>
                     )}
                 </div>
             </div>

@@ -476,3 +476,100 @@ export const deleteUser = async (userId: string) => {
         return { success: false, error: 'Failed to delete user' }
     }
 }
+
+// ============================================================================
+// ALLOCATION MUTATIONS
+// ============================================================================
+
+export const saveAllocations = async (projectId: string, allocations: Record<number, Record<string, number>>, teamMemberIds: string[]) => {
+    try {
+        // Get team members with their IDs
+        const teamMembers = await prisma.teamMember.findMany({
+            where: { projectId }
+        })
+
+        // Delete existing allocations for this project
+        await prisma.allocation.deleteMany({
+            where: { projectId }
+        })
+
+        // Create new allocations
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        const newAllocations = []
+
+        for (let memberIndex = 0; memberIndex < teamMembers.length; memberIndex++) {
+            const teamMember = teamMembers[memberIndex]
+            const memberAllocations = allocations[memberIndex] || {}
+
+            for (const month of months) {
+                const percentage = memberAllocations[month] || 0
+                // Save all allocations, including those with 0 percentage
+                newAllocations.push({
+                    projectId,
+                    teamMemberId: teamMember.id,
+                    month,
+                    percentage
+                })
+            }
+        }
+
+        // Batch create allocations
+        if (newAllocations.length > 0) {
+            await prisma.allocation.createMany({
+                data: newAllocations
+            })
+        }
+
+        revalidatePath(`/dashboard/projects/${projectId}/allocations`, 'page')
+        return { success: true, message: 'Allocations saved successfully' }
+    } catch (error) {
+        console.error('Error saving allocations:', error)
+        return { success: false, error: 'Failed to save allocations' }
+    }
+}
+
+// ============================================================================
+// TEAM MEMBER OPERATIONS
+// ============================================================================
+
+export const addTeamMemberToProject = async (projectId: string, userId: string) => {
+    try {
+        // Check if team member already exists in project
+        const existingMember = await prisma.teamMember.findFirst({
+            where: {
+                projectId,
+                userId
+            }
+        })
+
+        if (existingMember) {
+            return { success: false, error: 'This user is already a member of the project' }
+        }
+
+        // Get the user
+        const user = await prisma.user.findUnique({
+            where: { id: userId }
+        })
+
+        if (!user) {
+            return { success: false, error: 'User not found' }
+        }
+
+        // Add team member
+        const teamMember = await prisma.teamMember.create({
+            data: {
+                projectId,
+                userId,
+                role: 'MEMBER'
+            }
+        })
+
+        revalidatePath(`/dashboard/projects/${projectId}/allocations`, 'page')
+        revalidatePath(`/dashboard/projects/${projectId}`, 'page')
+
+        return { success: true, message: `${user.name || user.email} added to project`, teamMember }
+    } catch (error) {
+        console.error('Error adding team member:', error)
+        return { success: false, error: 'Failed to add team member' }
+    }
+}

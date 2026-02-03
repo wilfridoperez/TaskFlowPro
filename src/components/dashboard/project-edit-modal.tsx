@@ -160,9 +160,9 @@ export default function ProjectEditModal({ project, isOpen, onClose, onSave }: P
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                         >
                             <option value="ACTIVE">Active</option>
-                            <option value="PLANNING">Planning</option>
+                            <option value="ON_HOLD">On Hold</option>
                             <option value="COMPLETED">Completed</option>
-                            <option value="PAUSED">Paused</option>
+                            <option value="CANCELLED">Cancelled</option>
                         </select>
                     </div>
 
