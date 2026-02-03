@@ -13,13 +13,6 @@ fi
 
 cd /home/site/wwwroot
 
-# Run Prisma migrations with timeout and error handling
-echo "====== Running Prisma migrations ======"
-if ! npx prisma migrate deploy --skip-generate 2>&1; then
-    echo "WARNING: Prisma migrations failed or database is not accessible"
-    echo "DATABASE_URL: $DATABASE_URL"
-fi
-
 # Start the Next.js app with timeout and logging
 echo "====== Starting Next.js server on port ${PORT:-8080} ======"
 npm start
