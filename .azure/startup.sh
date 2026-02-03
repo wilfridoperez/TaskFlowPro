@@ -3,6 +3,11 @@
 # Startup script for Azure App Service
 # Dynamically configure environment and start the Next.js app
 
+echo "====== STARTUP SCRIPT STARTING ======"
+echo "Current directory: $(pwd)"
+echo "Current user: $(whoami)"
+echo "PATH: $PATH"
+
 # Dynamically set NEXTAUTH_URL based on the app's actual URL
 if [ -z "$NEXTAUTH_URL" ]; then
     if [ ! -z "$WEBSITE_HOSTNAME" ]; then
@@ -11,10 +16,15 @@ if [ -z "$NEXTAUTH_URL" ]; then
     fi
 fi
 
-cd /home/site/wwwroot
+echo "Changing to /home/site/wwwroot..."
+cd /home/site/wwwroot || exit 1
+echo "Now in: $(pwd)"
+echo "Contents:"
+ls -la | head -20
 
-# Start the Next.js app immediately
-# Skip migrations to prevent startup timeout
-# Migrations can be run manually or as a scheduled task
+# Check if npm is available
+echo "npm version: $(npm --version)"
+echo "node version: $(node --version)"
+
 echo "====== Starting Next.js server on port ${PORT:-8080} ======"
-npm start
+npm start 2>&1
