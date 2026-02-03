@@ -3,12 +3,11 @@
 # Startup script for Azure App Service
 # Dynamically configure environment and start the Next.js app
 
-# Exit on any error
+# Exit on error (but allow bg processes to fail gracefully)
 set -e
 
 # Dynamically set NEXTAUTH_URL based on the app's actual URL
 if [ -z "$NEXTAUTH_URL" ]; then
-    # Get the app domain from Azure App Service environment
     if [ ! -z "$WEBSITE_HOSTNAME" ]; then
         export NEXTAUTH_URL="https://$WEBSITE_HOSTNAME"
         echo "Set NEXTAUTH_URL=$NEXTAUTH_URL"
@@ -22,6 +21,5 @@ echo "====== Running Prisma migrations in background ======"
 npx prisma migrate deploy --skip-generate > /tmp/prisma-migration.log 2>&1 &
 
 # Start the Next.js app immediately without waiting for migrations
-# The app will use fallback data if migrations haven't completed yet
 echo "====== Starting Next.js server on port ${PORT:-8080} ======"
 npm start
