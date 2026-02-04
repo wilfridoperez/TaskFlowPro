@@ -49,9 +49,7 @@ jobs:
           cp -r .next ./deploy/
           cp -r public ./deploy/
           cp -r prisma ./deploy/
-          cp -r .azure ./deploy/
-          cp package.json package-lock.json next.config.ts tsconfig.json .deployment ./deploy/
-          chmod +x ./deploy/.azure/startup.sh
+          cp package.json package-lock.json next.config.ts tsconfig.json .deployment web.config ./deploy/
           cd ./deploy && zip -r ../deploy.zip . -x "node_modules/*"
 
       

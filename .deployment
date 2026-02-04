@@ -1,3 +1,4 @@
 [config]
 command = npm ci --legacy-peer-deps
 SCM_DO_BUILD_DURING_DEPLOYMENT = true
+SCM_SCRIPT_GENERATOR_ARGS = --node
