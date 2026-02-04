@@ -49,7 +49,7 @@ export function ProjectGrid() {
 
     return (
         <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
+            <div className="p-5">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg leading-6 font-medium text-gray-900">
                         Recent Projects

@@ -53,7 +53,7 @@ export default async function DashboardPage() {
                     <StatsOverview />
 
                     {/* Projects and Recent Tasks */}
-                    <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                    <div className="grid lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-4">
                         <ProjectGrid />
                         <RecentTasks />
                     </div>

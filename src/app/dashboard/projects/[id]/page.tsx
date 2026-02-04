@@ -80,17 +80,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 />
 
                 {/* Tasks Section with View Selector */}
-                <div className="bg-white rounded-lg shadow-sm mt-4">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                        <h2 className="text-base font-semibold text-gray-900">Tasks</h2>
-                        <Link
-                            href={`/dashboard/tasks/new?projectId=${projectId}`}
-                            className="bg-blue-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Add Task
-                        </Link>
-                    </div>
-
+                <div className="bg-white rounded-lg shadow-sm">
                     {safeProject.tasks.length === 0 ? (
                         <div className="text-center py-6">
                             <Clock className="w-10 h-10 text-gray-400 mx-auto mb-2" />
@@ -100,6 +90,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                     ) : (
                         <div className="p-4">
                             <ProjectViewSelector
+                                projectId={projectId}
                                 tasks={safeProject.tasks as any}
                                 users={await getUsers()}
                                 projectStartDate={safeProject.startDate}

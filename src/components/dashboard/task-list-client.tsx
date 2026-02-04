@@ -31,7 +31,7 @@ type SortOrder = 'asc' | 'desc'
 const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 }
 const statusOrder = { TODO: 0, IN_PROGRESS: 1, IN_REVIEW: 2, DONE: 3 }
 
-export default function TaskListClient({ tasks, users }: { tasks: Task[], users: User[] }) {
+export default function TaskListClient({ tasks, users, filterOpen, setFilterOpen }: { tasks: Task[], users: User[], filterOpen: boolean, setFilterOpen: (open: boolean) => void }) {
     const [sortField, setSortField] = useState<SortField>('dueDate')
     const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
     const [filterStatus, setFilterStatus] = useState<string>('ALL')
@@ -42,7 +42,7 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
     const [expandedDeps, setExpandedDeps] = useState<Set<string>>(new Set())
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
     const [updatedTasks, setUpdatedTasks] = useState<{ [key: string]: Partial<Task> }>({})
-    const [filterOpen, setFilterOpen] = useState<boolean>(false)
+
 
     const getUserName = (userId: string) => {
         const user = users.find(u => u.id === userId)
@@ -168,114 +168,100 @@ export default function TaskListClient({ tasks, users }: { tasks: Task[], users:
             <ChevronDown className="w-4 h-4 text-blue-600" />
     }
 
+    const hasActiveFilters = filterStatus !== 'ALL' || filterPriority !== 'ALL' || filterAssignee !== 'ALL' || filterStartDateFrom || filterStartDateTo
+
+    const clearAllFilters = () => {
+        setFilterStatus('ALL')
+        setFilterPriority('ALL')
+        setFilterAssignee('ALL')
+        setFilterStartDateFrom('')
+        setFilterStartDateTo('')
+    }
+
     return (
         <div>
-            {/* Filter Toggle */}
-            <div className="mb-6 border border-gray-300 rounded-lg bg-white">
-                <button
-                    onClick={() => setFilterOpen(!filterOpen)}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-5 h-5 text-blue-600" />
-                        <span className="font-medium text-gray-900">Filters</span>
-                        {(filterStatus !== 'ALL' || filterPriority !== 'ALL' || filterAssignee !== 'ALL' || filterStartDateFrom || filterStartDateTo) && (
-                            <div className="flex items-center gap-2 ml-4">
-                                {filterStatus !== 'ALL' && (
-                                    <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                                        {filterStatus === 'IN_PROGRESS' ? 'In Progress' : filterStatus}
-                                    </span>
-                                )}
-                                {filterPriority !== 'ALL' && (
-                                    <span className="inline-block px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">
-                                        {filterPriority}
-                                    </span>
-                                )}
-                                {filterAssignee !== 'ALL' && (
-                                    <span className="inline-block px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
-                                        {getUserName(filterAssignee)}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                    {filterOpen ? (
-                        <ChevronUp className="w-5 h-5 text-gray-400" />
-                    ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
-                    )}
-                </button>
-
-                {/* Filter Dropdowns */}
+            {/* Filter Section - Controlled by parent */}
+            <div className="mb-4 border border-gray-300 rounded-lg bg-white overflow-hidden transition-all duration-300">
+                {/* Filter Controls - Expanded Mode */}
                 {filterOpen && (
-                    <div className="px-4 pb-4 pt-2 border-t border-gray-200 grid grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            >
-                                <option value="ALL">All Statuses</option>
-                                <option value="TODO">To Do</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="DONE">Done</option>
-                            </select>
+                    <div className="px-3 pb-3 pt-2 bg-gray-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                                <select
+                                    value={filterStatus}
+                                    onChange={(e) => setFilterStatus(e.target.value)}
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs"
+                                >
+                                    <option value="ALL">All Statuses</option>
+                                    <option value="TODO">To Do</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="DONE">Done</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+                                <select
+                                    value={filterPriority}
+                                    onChange={(e) => setFilterPriority(e.target.value)}
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs"
+                                >
+                                    <option value="ALL">All Priorities</option>
+                                    <option value="HIGH">High</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="LOW">Low</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Assigned To</label>
+                                <select
+                                    value={filterAssignee}
+                                    onChange={(e) => setFilterAssignee(e.target.value)}
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs"
+                                >
+                                    <option value="ALL">All Team Members</option>
+                                    <option value="">Unassigned</option>
+                                    {users.map(user => (
+                                        <option key={user.id} value={user.id}>{user.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-                            <select
-                                value={filterPriority}
-                                onChange={(e) => setFilterPriority(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            >
-                                <option value="ALL">All Priorities</option>
-                                <option value="HIGH">High</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="LOW">Low</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Assigned To</label>
-                            <select
-                                value={filterAssignee}
-                                onChange={(e) => setFilterAssignee(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            >
-                                <option value="ALL">All Team Members</option>
-                                <option value="">Unassigned</option>
-                                {users.map(user => (
-                                    <option key={user.id} value={user.id}>{user.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date Range</label>
+
+                        <div className="mb-3">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Start Date Range</label>
                             <div className="flex gap-2">
                                 <input
                                     type="date"
                                     value={filterStartDateFrom}
                                     onChange={(e) => setFilterStartDateFrom(e.target.value)}
                                     placeholder="From"
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                    className="flex-1 px-2 py-1.5 border border-gray-300 rounded-lg text-xs"
                                 />
                                 <input
                                     type="date"
                                     value={filterStartDateTo}
                                     onChange={(e) => setFilterStartDateTo(e.target.value)}
                                     placeholder="To"
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                    className="flex-1 px-2 py-1.5 border border-gray-300 rounded-lg text-xs"
                                 />
                             </div>
                         </div>
+
+                        {hasActiveFilters && (
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={clearAllFilters}
+                                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-600 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                    Clear All
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
-
-            {/* Results count */}
-            <p className="text-sm text-gray-600 mb-4">
-                Showing {sorted.length} of {tasks.length} tasks
-            </p>
 
             {/* Enhanced Task Table */}
             <EnhancedTaskTable
