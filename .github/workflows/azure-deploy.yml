@@ -49,7 +49,7 @@ jobs:
           cp -r .next ./deploy/
           cp -r public ./deploy/
           cp -r prisma ./deploy/
-          cp package.json package-lock.json next.config.ts tsconfig.json .deployment web.config ./deploy/
+          cp package.json package-lock.json next.config.ts tsconfig.json .deployment web.config server.js ./deploy/
           cd ./deploy && zip -r ../deploy.zip . -x "node_modules/*"
 
       
