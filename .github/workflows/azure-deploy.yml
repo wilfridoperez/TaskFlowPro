@@ -48,10 +48,14 @@ jobs:
         run: |
           mkdir -p ./deploy
           # Next.js standalone output: deploy only what is needed to run
-          mkdir -p ./deploy/.next
-          cp -r .next/standalone ./deploy/.next/standalone
-          cp -r .next/static ./deploy/.next/static
-          cp -r public ./deploy/public
+          # The generated `.next/standalone/server.js` does `process.chdir(__dirname)`.
+          # It expects:
+          # - Static files at `.next/standalone/.next/static`
+          # - Public assets at `.next/standalone/public`
+          mkdir -p ./deploy/.next/standalone/.next
+          cp -r .next/standalone/* ./deploy/.next/standalone/
+          cp -r .next/static ./deploy/.next/standalone/.next/static
+          cp -r public ./deploy/.next/standalone/public
           # Include prisma schema (optional but useful for debugging/migrations)
           cp -r prisma ./deploy/prisma
           # Minimal runtime metadata
