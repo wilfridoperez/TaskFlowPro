@@ -51,7 +51,9 @@ jobs:
           cp -r prisma ./deploy/
           cp -r .azure ./deploy/
           cp package.json package-lock.json next.config.ts tsconfig.json .deployment ./deploy/
+          chmod +x ./deploy/.azure/startup.sh
           cd ./deploy && zip -r ../deploy.zip . -x "node_modules/*"
+
       
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
