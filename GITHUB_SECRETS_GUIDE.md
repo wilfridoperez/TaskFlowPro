@@ -4,25 +4,30 @@ You need to add 4 secrets to GitHub for deployment to work:
 
 ## 📋 Required Secrets
 
-Go to: https://github.com/wilfridoperez/TaskFlowPro/settings/secrets/actions
+Go to: <https://github.com/wilfridoperez/TaskFlowPro/settings/secrets/actions>
 
 ### 1. **DATABASE_URL** ✅ (Already have this)
+
 - **Name**: `DATABASE_URL`
-- **Value**: `postgresql://xptxlmkire:Venezuela12!@taskflowpro-server.postgres.database.azure.com:5432/postgres`
+- **Value**: `postgresql://<user>:<password>@<server>.postgres.database.azure.com:5432/<db>?sslmode=require`
 
 ### 2. **NEXTAUTH_SECRET** ✅ (Already have this)
+
 - **Name**: `NEXTAUTH_SECRET`
-- **Value**: `bkp5mtx6seX0x1J6KrMUT2Aicdh9rz1+MWCMGVDTUiA=`
+- **Value**: Use a strong 32+ byte secret (example: `openssl rand -base64 32`)
 
 ### 3. **NEXTAUTH_URL** ✅ (Already have this)
+
 - **Name**: `NEXTAUTH_URL`
-- **Value**: `https://taskflowpro.azurewebsites.net`
+- **Value**: `https://<your-app-name>.azurewebsites.net`
 
 ### 4. **AZURE_APP_NAME** ⏳ (Need to add)
+
 - **Name**: `AZURE_APP_NAME`
 - **Value**: `TaskFlowPro`
 
 ### 5. **AZURE_PUBLISH_PROFILE** ⏳ (Need to add)
+
 - **Name**: `AZURE_PUBLISH_PROFILE`
 - **Value**: (See below how to get it)
 
@@ -40,7 +45,7 @@ Go to: https://github.com/wilfridoperez/TaskFlowPro/settings/secrets/actions
 
 ## ✅ Add to GitHub
 
-1. Go to: https://github.com/wilfridoperez/TaskFlowPro/settings/secrets/actions
+1. Go to: <https://github.com/wilfridoperez/TaskFlowPro/settings/secrets/actions>
 
 2. For each secret:
    - Click: **New repository secret**
@@ -65,4 +70,4 @@ git push origin main
 
 GitHub Actions will automatically start deployment when you push!
 
-Monitor at: https://github.com/wilfridoperez/TaskFlowPro/actions
+Monitor at: <https://github.com/wilfridoperez/TaskFlowPro/actions>

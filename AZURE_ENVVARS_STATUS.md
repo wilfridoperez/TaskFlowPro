@@ -6,10 +6,10 @@ All required environment variables are **correctly set** in Azure App Service Co
 
 | Variable | Status | Value Preview |
 |----------|--------|----------------|
-| `NEXTAUTH_SECRET` | ✅ Set | `bkp5mtx6seX0x1J6KrMUT2Aicdh9rz1+MWCMGVDTUiA=` |
+| `NEXTAUTH_SECRET` | ✅ Set | `********` |
 | `NEXTAUTH_URL` | ✅ Set | `https://taskflowpro-e0bsbbdea4gdczha.canadaeast-01.azurewebsites.net` |
 | `NODE_ENV` | ✅ Set | `production` |
-| `DATABASE_URL` | ✅ Set | `postgresql://xptxlmkire:***@taskflowpro-postgres...` |
+| `DATABASE_URL` | ✅ Set | `postgresql://<user>:***@<server>...` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | ✅ Set | `pk_test_51234567890...` |
 | `STRIPE_SECRET_KEY` | ✅ Set | `sk_test_51234567890...` |
 | `NEXT_PUBLIC_APP_URL` | ✅ Set | `https://taskflowpro-e0bsbbdea4gdczha.canadaeast-01.azurewebsites.net` |
@@ -17,6 +17,7 @@ All required environment variables are **correctly set** in Azure App Service Co
 ## 🔧 Actions Taken to Fix Application Error
 
 ### 1. Fixed Blocking Prisma Imports (Commit: 80b6fc1a)
+
 - **Problem**: Old `src/lib/prisma.ts` created PrismaClient at module load time
 - **Solution**: Updated to lazy-load from `prisma-client` module
 - **Files Changed**:
@@ -26,6 +27,7 @@ All required environment variables are **correctly set** in Azure App Service Co
   - `src/app/api/auth/register/route.ts` - Uses lazy-loaded prisma
 
 ### 2. Enhanced Startup Diagnostics (Commit: b94f1f23)
+
 - Updated `.azure/startup.sh` to include detailed logging:
   - Environment variables displayed at startup
   - Current working directory logged
@@ -33,6 +35,7 @@ All required environment variables are **correctly set** in Azure App Service Co
   - Startup sequence logged
 
 ### 3. Verified Locally
+
 ✅ App starts in 330ms
 ✅ Health endpoint responds correctly
 ✅ Home page renders
@@ -42,7 +45,8 @@ All required environment variables are **correctly set** in Azure App Service Co
 
 **Last Deployment**: Commit `b94f1f23` automatically deployed via GitHub Actions
 **Trigger**: `git push origin main` automatically triggers workflow
-**Build Process**: 
+**Build Process**:
+
 1. Node.js 24 setup
 2. Dependencies: `npm ci --legacy-peer-deps`
 3. Build: `npm run build`
@@ -52,41 +56,49 @@ All required environment variables are **correctly set** in Azure App Service Co
 ## 🔍 If Application Error Persists
 
 ### Check Azure Logs
+
 ```bash
 az webapp log stream --name TaskFlowPro --resource-group TaskFlowPro
 ```
 
 ### Restart App Service
+
 ```bash
 az webapp restart --name TaskFlowPro --resource-group TaskFlowPro
 ```
 
 ### Access Diagnostic Console
+
 - URL: `https://taskflowpro.scm.canadaeast-01.azurewebsites.net/detectors`
 - Provides diagnostic information about app health
 
 ### Common Issues
 
 **Issue**: Still seeing 503 Application Error
+
 - **Cause**: May be transient - deployment in progress
 - **Fix**: Wait 2-3 minutes for deployment to complete, then refresh
 
 **Issue**: Database connection timeout
+
 - **Cause**: Prisma trying to connect during startup
 - **Fix**: Already fixed in code - lazy-loading with 5-second timeout and fallback
 
 **Issue**: Health endpoint returns 503
+
 - **Cause**: App is not responding
 - **Fix**: Check logs with `az webapp log stream` command
 
 ## 📝 Testing Commands
 
 ### Test Health Endpoint
+
 ```bash
 curl -w "\nStatus: %{http_code}\n" https://taskflowpro-e0bsbbdea4gdczha.canadaeast-01.azurewebsites.net/api/health
 ```
 
 ### Expected Response
+
 ```json
 {
   "status": "healthy",
@@ -97,6 +109,7 @@ HTTP Status: 200
 ```
 
 ### Test Home Page
+
 ```bash
 curl https://taskflowpro-e0bsbbdea4gdczha.canadaeast-01.azurewebsites.net
 ```
