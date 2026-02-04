@@ -34,9 +34,10 @@ const server = http.createServer((req, res) => {
     }
 
     // Proxy to Next.js
+    const nextPort = parseInt(process.env.PORT || '8080', 10) + 1000;
     const proxyReq = http.request({
         hostname: 'localhost',
-        port: 3000,
+        port: nextPort,
         path: req.url,
         method: req.method,
         headers: req.headers
@@ -58,10 +59,11 @@ server.listen(PORT, () => {
     console.log(`[Wrapper] Health check server listening on port ${PORT}`);
 });
 
-// Start Next.js on port 3000
-console.log('[Wrapper] Starting Next.js application...');
-const nextProcess = spawn('npx', ['next', 'start', '--port', '3000'], {
-    env: { ...process.env, PORT: '3000', NODE_ENV: 'production' },
+// Start Next.js on a different port (PORT + 1000 to avoid conflicts)
+const nextPort = parseInt(process.env.PORT || '8080', 10) + 1000;
+console.log(`[Wrapper] Starting Next.js application on port ${nextPort}...`);
+const nextProcess = spawn('npx', ['next', 'start', '--port', nextPort.toString()], {
+    env: { ...process.env, NODE_ENV: 'production' },
     stdio: 'inherit'
 });
 
