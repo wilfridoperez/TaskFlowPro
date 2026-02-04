@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { stripe, SUBSCRIPTION_PLANS } from '@/lib/stripe'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma-client'
 
 export async function POST(request: NextRequest) {
     try {

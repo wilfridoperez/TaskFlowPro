@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma-client'
 
 const relevantEvents = new Set([
     'checkout.session.completed',
