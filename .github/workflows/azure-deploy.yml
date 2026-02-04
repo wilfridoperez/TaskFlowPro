@@ -50,6 +50,7 @@ jobs:
           cp -r public ./deploy/
           cp -r prisma ./deploy/
           cp -r .azure ./deploy/
+          cp -r node_modules ./deploy/
           cp package.json package-lock.json next.config.ts tsconfig.json .deployment ./deploy/
           cd ./deploy && zip -r ../deploy.zip .
       
