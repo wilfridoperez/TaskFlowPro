@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: package-lock.json
       
@@ -31,8 +31,9 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
           NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-          STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_PUBLIC_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLIC_KEY }}
           STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          NEXT_PUBLIC_APP_URL=${{ secrets.NEXTAUTH_URL }}
           EOF
       
       - name: Clear Next.js cache
@@ -46,11 +47,16 @@ jobs:
       - name: Create deployment package
         run: |
           mkdir -p ./deploy
-          cp -r .next ./deploy/
-          cp -r public ./deploy/
-          cp -r prisma ./deploy/
-          cp package.json package-lock.json next.config.ts tsconfig.json .deployment web.config server.js ./deploy/
-          cd ./deploy && zip -r ../deploy.zip . -x "node_modules/*"
+          # Next.js standalone output: deploy only what is needed to run
+          mkdir -p ./deploy/.next
+          cp -r .next/standalone ./deploy/.next/standalone
+          cp -r .next/static ./deploy/.next/static
+          cp -r public ./deploy/public
+          # Include prisma schema (optional but useful for debugging/migrations)
+          cp -r prisma ./deploy/prisma
+          # Minimal runtime metadata
+          cp package.json package-lock.json ./deploy/
+          cd ./deploy && zip -r ../deploy.zip .
 
       
       - name: Deploy to Azure
