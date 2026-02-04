@@ -1,4 +1,4 @@
 [config]
-command = npm ci --legacy-peer-deps && npm run postinstall
+command = npm ci --legacy-peer-deps && npm run postinstall && npx prisma migrate deploy --skip-generate || true
 SCM_DO_BUILD_DURING_DEPLOYMENT = true
 SCM_SCRIPT_GENERATOR_ARGS = --node
